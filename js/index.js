@@ -85,11 +85,11 @@ function runTest(repo) {
       // Create log header
       var log = '';
       log += '<h1>';
-      log = (res.exitStatus > 0) ? 'Test failed' : 'Test passed';
-      log += '</h1>';
+      log += (res.exitStatus > 0) ? 'Test failed' : 'Test passed';
+      log += '</h1><br/>';
 
       //Prettify terminal log;
-      log += ansi_up.ansi_to_html(res.output.replace(/[\n]/g, ' <br/> '));
+      log += ansi_up.ansi_to_html(res.output.replace(/(\n+)/g, ' <br/> '));
 
       //Write log to file
       fs.writeFile(repositoriesPath + repo + '.log', log, function (err) {
@@ -117,12 +117,12 @@ function handleRequest(request, response) {
   var folders = fs.readdirSync(repositoriesPath);
 
   //HTML header
-  response.write('<!DOCTYPE html><head><meta charset="UTF-8"><title>Home-CLI</title></head><body>');
+  response.write('<!DOCTYPE html><head><link  rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/jasonm23/markdown-css-themes/gh-pages/swiss.css"></link><meta charset="UTF-8"><title>Home-CLI</title></head><body>');
 
   if (folders.indexOf(repo) >= 0) { //Repository is downloaded
-    pull(repo)
+    runTest(repo)
     .then(function () {
-      return runTest(repo);
+      return loadTestLog(repo);
     })
     .then(function (log) {
       response.write(log);
@@ -140,7 +140,10 @@ function handleRequest(request, response) {
       return runTest(repo);
     })
     .then(function () {
-      return loadTestLog(repo);
+      return install(repo);
+    })
+    .then(function () {
+      return runTest(repo);
     })
     .then(function (log) {
       response.write(log);
