@@ -17,7 +17,8 @@ var PORT = 4000;
 
 var validate = (function () {
   var users = [
-    'lazamar'
+    'lazamar',
+    'fourlabsldn'
   ];
 
   var userNameRegex = /\/([-\w]*)/;
@@ -47,22 +48,27 @@ var validate = (function () {
 }());
 
 function downloadRepo(url) {
-  return runner('git', ['clone', 'https://github.com' + url], repositoriesPath);
+  console.log('downloadRepo');
+  return runner('git', ['clone', 'https://github.com' + url + '.git'], repositoriesPath);
 }
 
 function install(repo) {
+  console.log('install');
   return runner('npm', ['install'], repositoriesPath + repo);
 }
 
 function pull(repo) {
+  console.log('pull');
   return runner('git', ['pull'], repositoriesPath + repo);
 }
 
 function loadTestLog(repo) {
+  console.log('loadTestLog');
+
   return new Promise(function (resolve, reject) {
     fs.readFile(repositoriesPath + repo + '.log', function (err, data) {
       if (err) {
-        reject(err);
+        reject('File not found.');
       } else {
         resolve(data);
       }
@@ -71,6 +77,8 @@ function loadTestLog(repo) {
 }
 
 function runTest(repo) {
+  console.log('runTest');
+
   return runner('npm', ['test'], repositoriesPath + repo)
   .then(function (res) {
     return new Promise(function (resolve, reject) {
@@ -106,7 +114,7 @@ function handleRequest(request, response) {
     return response.end('Invalid URL');
   }
 
-  var folders = fs.readdirSync('./repositories');
+  var folders = fs.readdirSync(repositoriesPath);
 
   //HTML header
   response.write('<!DOCTYPE html><head><meta charset="UTF-8"><title>Home-CLI</title></head><body>');
@@ -122,9 +130,12 @@ function handleRequest(request, response) {
     .catch(function (err) {
       response.write('An error occurred:');
       response.write(err);
+    })
+    .finally(function () {
+      return response.end();
     });
   } else { //repository needs to be downloaded
-    downloadRepo(repo)
+    downloadRepo(request.url)
     .then(function () {
       return runTest(repo);
     })
@@ -137,10 +148,12 @@ function handleRequest(request, response) {
     .catch(function (err) {
       response.write('An error occurred:');
       response.write(err);
+    })
+    .finally(function () {
+      return response.end();
     });
   }
 
-  return response.end();
 }
 
 //Create a server

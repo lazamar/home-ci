@@ -9,6 +9,9 @@ var Promise = require('promise');
 module.exports = function runner(commandName, args, dir) {
   dir = dir || process.cwd();
 
+  console.log(dir);
+  console.log(commandName + ' ' + [].join.call(args, ' '));
+
   //Change current working directory
   process.chdir(dir);
 
@@ -20,10 +23,12 @@ module.exports = function runner(commandName, args, dir) {
     proc.stdout.on('data', function (data) {
       var buff = new Buffer(data);
       output += '\n' + buff.toString('utf8');
+      console.log("PROCESS OUTPUT: " + data);
     });
 
     proc.stderr.on('data', function (data) {
       output += '\nERROR: ' + data;
+      console.log("PROCESS ERROR: " + data);
     });
 
     proc.on('exit', function (code) {
