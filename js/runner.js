@@ -22,7 +22,7 @@ module.exports = function runner(commandName, args, dir) {
     var proc = spawn(commandName, args);
     proc.stdout.on('data', function (data) {
       var buff = new Buffer(data);
-      output += '\n' + buff.toString('utf8');
+      output += buff.toString('utf8');
       console.log("PROCESS OUTPUT: " + data);
     });
 

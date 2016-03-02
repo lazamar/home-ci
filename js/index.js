@@ -37,7 +37,14 @@ server.get(/^\/[\w-.]{2,}\/[\w-.]+\/?$/, function (request, response) {
   var handling; //this will be a promise
 
   if (folders.indexOf(repoName) >= 0 && utils.readDirectory(logFolder)) { //Repository is downloaded
-    handling = repo.loadTestLog();
+    handling = repo.loadTestLog()
+    .then(function (log) {
+      if (log === null) { //no log found
+        return repo.runTest();
+      } else {
+        return log;
+      }
+    });
   } else { //repository needs to be downloaded
     handling = repo.clone()
     .then(function () { return repo.runTest(); })

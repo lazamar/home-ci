@@ -64,7 +64,7 @@ module.exports = (function utils() {
   }
 
   function terminalToHTML(text) {
-    var withLineBreaks = text.replace(/(\n+)/g, '\n<br/> ');
+    var withLineBreaks = text.replace(/\n/g, '\n<br/> ');
     return ansi_up.ansi_to_html(withLineBreaks);
   }
 
