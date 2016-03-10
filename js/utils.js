@@ -48,7 +48,12 @@ module.exports = (function utils() {
     });
   }
 
+  function readFileSync(fileName) {
+    fs.readFileSync(fileName);
+  }
+
   function writeFile(filePath, content) {
+    console.log('writing to file...');
     var fileName = filePath.match(/\/[^\/]+$/);
     var pathFolders = filePath.replace(fileName[0], '');
     mkdirp.sync(pathFolders);
@@ -99,13 +104,34 @@ module.exports = (function utils() {
       });
   }
 
+  //get number of files like test10.log and test11.log
+  function getFileNumber(fileName) {
+    if (!fileName) { return null; }
+
+    var match = fileName.match(/([0-9]+)\.[^0-9]+$/) || [];
+    var fileNo = parseInt(match[1]);
+    return fileNo || null;
+  }
+
+  //Compares names like test10.log and test11.log
+  function compareFileNames(f1, f2) {
+    //Make number an int or NaN if no number was matched.
+    var f1No = getFileNumber(f1);
+    var f2No = getFileNumber(f2);
+
+    return f1No > f2No;
+  }
+
   return {
     buildTemplate: buildTemplate,
     readDirectory: readDirectory,
     terminalToHTML: terminalToHTML,
     writeFile: writeFile,
     readFile: readFile,
+    readFileSync: readFileSync,
     parse: parse,
     validate: validate,
+    compareFileNames: compareFileNames,
+    getFileNumber: getFileNumber
   };
 }());

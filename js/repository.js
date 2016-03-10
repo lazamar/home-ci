@@ -3,7 +3,7 @@ var Promise = require('promise');
 var utils = require('./utils');
 var runner = require('./runner'); //Process runner
 
-module.exports = function Repository(username, repo, repositoriesPath) {
+function Repository(username, repo, repositoriesPath) {
 
   //Check if invoked as constructor
   if (!(this instanceof Repository)) {
@@ -18,82 +18,138 @@ module.exports = function Repository(username, repo, repositoriesPath) {
     throw new Error('Repo: No "repositoriesPath" argument provided.');
   }
 
-  function lastTestNo(repo, repositoriesPath) {
-    var tests = utils.readDirectory(repositoriesPath + repo + '/logs/') || [];
-    var testName;
-    var testNo;
-    var highestNo;
+  this.getUsername = function getUsername() {
+    return username;
+  };
 
-    while (tests.length) {
-      testName = tests.pop();
-      testNo = testName.match(/([0-9]+)(\.log)$/) || [];
-      testNo = testNo[1];
-      highestNo = (highestNo > testNo) ? highestNo : testNo;
-    }
+  this.getRepo = function getRepo() {
+    return repo;
+  };
 
-    return highestNo || 0;
-  }
-
-  function clone(username, repo, repositoriesPath) {
-    console.log('downloadRepo');
-    return runner('git', ['clone', 'https://github.com/' + username + '/' + repo + '.git'], repositoriesPath);
-  }
-
-  function install(repo, repositoriesPath) {
-    console.log('install');
-    return runner('npm', ['install'], repositoriesPath + repo);
-  }
-
-  function pull(repo, repositoriesPath) {
-    console.log('pull');
-    return runner('git', ['pull'], repositoriesPath + repo);
-  }
-
-  function loadTestLog(repo, repositoriesPath) {
-    console.log('loadTestLog');
-    var testNo = lastTestNo(repo, repositoriesPath);
-    if (testNo > 0) {
-      var testName = 'test-' + testNo + '.log';
-      return utils.readFile(repositoriesPath + repo + '/logs/' + testName);
-    } else {
-      return Promise.resolve(null);
-    }
-  }
-
-  function runTest(repo, repositoriesPath) {
-    console.log('runTest');
-    return runner('npm', ['test'], repositoriesPath + repo)
-    .then(function (res) {
-      // Create log header
-      var log = '<h1>';
-      log += (res.exitStatus > 0) ? 'Test failed' : 'Test passed';
-      log += '</h1><br/>';
-
-      //Prettify terminal log;
-      log += utils.terminalToHTML(res.output);
-      log += '<hr/>';
-
-      //Find log number
-      var logsFolder = repositoriesPath + repo + '/logs/';
-      var logs = utils.readDirectory(repositoriesPath) || [];
-      var testNo = logs.length + 1;
-
-      //Write log to file
-      var testName = 'test-' + (lastTestNo(repo, repositoriesPath) + 1) + '.log';
-      return utils.writeFile(logsFolder + 'test-' + testNo + '.log', log);
-    });
-  }
-
-  //Public interface
-  this.download = function () { return clone(username, repo, repositoriesPath); };
-
-  this.install = function () { return install(repo, repositoriesPath); };
-
-  this.pull = function () { return pull(repo, repositoriesPath); };
-
-  this.loadTestLog = function () { return loadTestLog(repo, repositoriesPath); };
-
-  this.runTest = function () { return runTest(repo, repositoriesPath); };
+  this.getRepositoriesPath = function getRepositoriesPath() {
+    return repositoriesPath;
+  };
 
   return this;
+}
+
+Repository.prototype.clone = function clone() {
+  var username = this.getUsername();
+  var repo = this.getRepo();
+  var repositoriesPath = this.getRepositoriesPath();
+  var url = 'https://github.com/' + username + '/' + repo + '.git';
+
+  console.log('cloning \t' + repo);
+  return runner('git', ['clone', url], repositoriesPath);
 };
+
+Repository.prototype.pull = function pull() {
+  var repo = this.getRepo();
+  var repositoriesPath = this.getRepositoriesPath();
+
+  console.log('pulling \t' + repo);
+  return runner('git', ['pull'], repositoriesPath + repo);
+};
+
+Repository.prototype.install = function install() {
+  var repo = this.getRepo();
+  var repositoriesPath = this.getRepositoriesPath();
+
+  console.log('installing \t' + repo);
+  return runner('npm', ['install'], repositoriesPath + repo);
+};
+
+// ---------------------------------
+//    TESTS
+// ---------------------------------
+
+// RETRIEVING TESTS //
+
+//If last test was test12.log, it returns 12.
+Repository.prototype.lastTestNumber = function lastTestNumber() {
+  var repo = this.getRepo();
+  var repositoriesPath = this.getRepositoriesPath();
+
+  var testFileNames = utils.readDirectory(repositoriesPath + repo + '/logs/') || [];
+  if (testFileNames.length > 0) { testFileNames.sort(utils.compareFileNames); }
+
+  var lastTest = testFileNames.pop();
+  return utils.getFileNumber(lastTest);
+};
+
+//Loads the most recent test log.
+Repository.prototype.lastTest = function lastTest() {
+  console.log('lastTest');
+  var repo = this.getRepo();
+  var repositoriesPath = this.getRepositoriesPath();
+
+  var testFileNames = utils.readDirectory(repositoriesPath + repo + '/logs/') || [];
+  testFileNames.sort(utils.compareFileNames);
+
+  var lastTest = testFileNames.pop();
+  if (lastTest) {
+    return utils.readFile(repositoriesPath + repo + '/logs/' + lastTest);
+  } else {
+    return Promise.resolve(null);
+  }
+};
+
+Repository.prototype.allTests = function allTests() {
+  console.log('loadTestLog');
+  var repo = this.getRepo();
+  var repositoriesPath = this.getRepositoriesPath();
+
+  var testFileNames = utils.readDirectory(repositoriesPath + repo + '/logs/') || [];
+  testFileNames.sort(utils.compareFileNames);
+
+  var tests = [];
+  for (var i = testFileNames.length; i >= 0; i--) {
+    tests[i] = utils.readFileSync(repositoriesPath + repo + '/logs/' + testFileNames[i]);
+  }
+
+  return tests;
+};
+
+// RUNNING TESTS //
+
+Repository.prototype.runTest = function runTest() {
+  var repo = this.getRepo();
+  var repositoriesPath = this.getRepositoriesPath();
+  var _this = this;
+
+  console.log('runTest');
+  return runner('npm', ['test'], repositoriesPath + repo)
+    .then(function (res) {
+      _this.saveTest(res.output, res.exitStatus);
+    })
+    .catch(function (err) {
+      console.error('Error running test: ' + err);
+    });
+};
+
+Repository.prototype.formatTest = function formatTest(content, exitStatus) {
+  //Prettify terminal log;
+  var log = utils.terminalToHTML(content);
+  log += 'Exit status: ' + exitStatus;
+  return log;
+};
+
+Repository.prototype.saveTest = function saveTest(content, exitStatus) {
+  console.log('saving test');
+  var log = this.formatTest(content, exitStatus);
+
+  //Find log number
+  var lastTestNo = this.lastTestNumber() || 0;
+  var newTestNo = lastTestNo + 1;
+
+  //Write log to file
+  var repo = this.getRepo();
+  var repositoriesPath = this.getRepositoriesPath();
+  var testName = 'test-' + newTestNo + '.log';
+  var fullPath = repositoriesPath + repo + '/logs/' + testName;
+
+  utils.writeFile(fullPath, log);
+  return log;
+};
+
+module.exports = Repository;
