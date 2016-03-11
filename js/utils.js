@@ -8,19 +8,6 @@ module.exports = (function utils() {
 
   var exp = {};
 
-  var validate = (function () {
-    var users = {
-      lazamar: true,
-      fourlabsldn: true,
-    };
-    return {
-      user: function (userName) {
-        userName = userName.replace('/', '');
-        return users[userName] ? true : false;
-      }
-    };
-  }());
-
   var parse = (function () {
     var validateRegex = /^(\/)([\w-]+)(?:(\/)([\w-]+))?/;
     return {
