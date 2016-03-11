@@ -71,6 +71,14 @@ server.get(/^\/[\w-.]{2,}\/[\w-.]+\/?$/, function (request, response) {
   });
 });
 
+server.get(/\/$/, function (request, response) {
+  var homePage = utils.readFile('html/index.html')
+  .then(function (index) {
+    response.write(index);
+    response.end();
+  });
+});
+
 //Lets start our server
 server.listen(PORT, function () {
   //Callback triggered when server is successfully listening. Hurray!
