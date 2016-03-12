@@ -2,9 +2,9 @@
   "name": "home-ci",
   "version": "1.0.0",
   "description": "A very simple continuous integration server",
-  "main": "js/index.js",
+  "main": "js/router.js",
   "scripts": {
-    "start": "node js/index.js",
+    "start": "node js/router.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "lazamar",

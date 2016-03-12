@@ -117,7 +117,6 @@ module.exports = (function utils() {
     readFile: readFile,
     readFileSync: readFileSync,
     parse: parse,
-    validate: validate,
     compareFileNames: compareFileNames,
     getFileNumber: getFileNumber
   };
