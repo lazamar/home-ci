@@ -43,3 +43,5 @@ function Repositories(reposPath) {
     return repos[repoName];
   };
 }
+
+module.exports = Repositories;
