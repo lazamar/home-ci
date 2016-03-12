@@ -24,7 +24,7 @@ function Repositories(reposPath) {
    * @param  {String} userName
    * @return {Repository}
    */
-  this.get = function get(repoName, userName) {
+  this.get = function get(userName, repoName) {
 
     //Constructor is a reserved property name
     if (repoName === 'constructor') {
@@ -35,12 +35,11 @@ function Repositories(reposPath) {
 
     if (!repos[userName]) { repos[userName] = {}; }
 
-    var userRepos = repos[userName];
-    if (!userRepos[repoName]) {
-      userRepos[repoName] = new Repository(userName, repoName, repositoriesPath);
+    if (!repos[userName][repoName]) {
+      repos[userName][repoName] = new Repository(userName, repoName, repositoriesPath);
     }
 
-    return repos[repoName];
+    return repos[userName][repoName];
   };
 }
 

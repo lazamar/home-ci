@@ -1,5 +1,6 @@
 
 var Promise = require('promise');
+var utils = require('./utils');
 var runner = require('./runner'); //Process runner
 var RepoTests = require('./repo-test');
 
@@ -25,26 +26,19 @@ function Repository(username, repoName, repositoriesPath) {
     throw new Error('Repository: No "repositoriesPath" argument provided.');
   }
 
-  this.getUsername = function getUsername() {
-    return username;
-  };
-
-  this.getRepoName = function getRepoName() {
-    return repoName;
-  };
-
-  this.getRepositoriesPath = function getRepositoriesPath() {
-    return repositoriesPath;
-  };
+  this.repositoriesPath = repositoriesPath;
+  this.username = username;
+  this.name = repoName;
+  this.githubUrl = 'https://github.com/' + username + '/' + repoName + '.git';
+  this.logsFolder = repositoriesPath + repoName + '/logs/';
+  this.forlder = repositoriesPath + repoName; //Repository folder
 
   var possibleStates = ['cloning', 'installing', 'pulling', 'testing', 'free'];
   var state = 'free';
 
-  this.getState = function getState() {
-    return state;
-  };
-
   /**
+   * The state will serve as a lock. Whenever a repository is in any stater
+   * other than 'free' it will not be able to change to any state other than 'free'
    * @method _setState
    * @param {String} newState
    * @return {Boolean} whether the state was set or not.
@@ -54,73 +48,81 @@ function Repository(username, repoName, repositoriesPath) {
     if (possibleStates.indexOf(newState) < 0) {
       console.error('Repository._setState(): "' + newState + '" is not a valid state.');
       return false;
+    } else if (state !== 'free' && newState !== 'free') {
+      return false;
     }
 
     state = newState;
     return true;
   };
 
+  this.getState = function getState() {
+    return state;
+  };
+
   // All test code is in here
   this.tests = new RepoTests(this);
+
+  //NOTE: By default, whenever a repository is created, it will be cloned
+  //if it hasn't been cloned yet.
+  //NOTE 2: This may misbehave and return that a repository is busy when its
+  // Repository instance is constructed. Check on that.
+  this.clone();
   return this;
 }
-
-Repository.prototype.isFree = function isFree() {
-  return (this.getState() === 'free');
-};
-
-Repository.prototype.getGithubUrl = function getGithubUrl() {
-  var username = this.getUsername();
-  var repoName = this.getRepoName();
-  return 'https://github.com/' + username + '/' + repoName + '.git';
-};
-
-Repository.prototype.getLogFolderAddress = function getLogFolderAddress() {
-  var repositoriesPath = this.getRepositoriesPath();
-  var repoName = this.getRepoName();
-  return repositoriesPath + repoName + '/logs/';
-};
 
 /**
  * Clones a git repository
  * @method clone
- * @return {Promise}
+ * @return {Promise} will be resolved to a String with the terminal output.
  */
 Repository.prototype.clone = function clone() {
-  if (!this.isFree()) { return Promise.reject('busy'); }
+  var stateSet = this._setState('cloning');
+  if (!stateSet) { return Promise.reject('busy'); }
 
-  var repositoriesPath = this.getRepositoriesPath();
-  var url = this.getGithubUrl();
+  var alreadyCloned = utils.dirExistsSync(this.folder);
+  if (alreadyCloned) { return Promise.resolve(); }
+
+  var repositoriesPath = this.repositoriesPath;
+  var url = this.githubUrl;
 
   console.log('cloning \t' + url);
 
-  this._setState('cloning');
   return runner('git', ['clone', url], repositoriesPath)
     .finally(function () { this._setState('free'); });
 };
 
+/**
+ * Pulls git repository
+ * @method pull
+ * @return {Promise} resolves into a String with terminal output
+ */
 Repository.prototype.pull = function pull() {
-  if (!this.isFree()) { return Promise.reject('busy'); }
+  var stateSet = this._setState('pulling');
+  if (!stateSet) { return Promise.reject('busy'); }
 
-  var repoName = this.getRepoName();
-  var repositoriesPath = this.getRepositoriesPath();
-
+  var repoFolder = this.folder;
+  var repoName = this.name;
   console.log('pulling \t' + repoName);
 
-  this._setState('pulling');
-  return runner('git', ['pull'], repositoriesPath + repoName)
+  return runner('git', ['pull'], repoFolder)
     .finally(function () { this._setState('free'); });
 };
 
+/**
+ * Run npm install
+ * @method install
+ * @return {Promise} resolves into a String with terminal output
+ */
 Repository.prototype.install = function install() {
-  if (!this.isFree()) { return Promise.reject('busy'); }
+  var stateSet = this._setState('installing');
+  if (!stateSet) { return Promise.reject('busy'); }
 
-  var repoName = this.getRepoName();
-  var repositoriesPath = this.getRepositoriesPath();
+  var repoName = this.name;
+  var repoFolder = this.folder;
 
   console.log('installing \t' + repoName);
-  this._setState('installing');
-  return runner('npm', ['install'], repositoriesPath + repoName)
+  return runner('npm', ['install'], repoFolder)
   .finally(function () { this._setState('free'); });
 };
 

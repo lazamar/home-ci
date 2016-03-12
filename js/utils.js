@@ -71,6 +71,10 @@ module.exports = (function utils() {
     return content;
   }
 
+  function dirExistsSync(dir) {
+    return fs.existsSync(dir);
+  }
+
   function buildTemplate(fields) {
     if (!fields || !fields.repo || !fields.username) {
       return null;
@@ -118,6 +122,7 @@ module.exports = (function utils() {
     readFileSync: readFileSync,
     parse: parse,
     compareFileNames: compareFileNames,
-    getFileNumber: getFileNumber
+    getFileNumber: getFileNumber,
+    dirExistsSync: dirExistsSync
   };
 }());

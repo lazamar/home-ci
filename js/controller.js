@@ -2,7 +2,7 @@
 var fs = require('fs');
 var utils = require('./utils');
 var Promise = require('promise');
-var Repository = require('./repository');
+var Repositories = require('./repositories');
 
 /**
  *  Singleton Controller
@@ -20,12 +20,21 @@ function Controller() {
     'fourlabsldn',
   ];
 
+  var repositories = new Repositories(REPOSITORIES_PATH);
+
   function isAuthorisedUser(user) {
     return (AUTHORISED_USERS.indexOf(user) >= 0);
   }
 
+  /**
+   * Creates an HTML page and returns it.
+   * @method getRepoPage
+   * @param  {String} user
+   * @param  {String} repoName
+   * @return {Promise}          Resolves to a string with the repo's HTML page.
+   */
   this.getRepoPage = function getRepoPage(user, repoName) {
-    var authorised = this.isAuthorisedUser(user);
+    var authorised = isAuthorisedUser(user);
 
     if (!user) {
       return Promise.resolve('Invalid git user');
@@ -35,27 +44,17 @@ function Controller() {
       return Promise.resolve('Username not authorised');
     }
 
-    var repo = new Repository(user, repoName, REPOSITORIES_PATH);
-    var handling; //this will be a promise
+    var repo = repositories.get(user, repoName);
 
-    if (fs.existsSync(REPOSITORIESPATH + repoName)) { //Repository is downloaded
-      handling = repo.lastTest()
-      .then(function (log) {
-        if (log === null) { //no log found
-          return repo.runTest();
-        } else {
-          return log;
-        }
-      });
-    } else { //repository needs to be downloaded
-      handling = repo.clone()
-      .then(function () { return repo.runTest(); })
-      .then(function () { return repo.install(); })
-      .then(function () { return repo.runTest(); });
-    }
+    return repo.tests.getLastLog()
+    .then(function (log) {
+      if (log) { return log; }
 
-    //Now we just build the page and return
-    return handling.then(function (log) {
+      //test log not found, so let's run an install and run a test.
+      return repo.install()
+        .then(function () { return repo.tests.run(); });
+    })
+    .then(function (log) {  //Now we just build the page and return it
       return utils.buildTemplate({
         username: user,
         repo: repoName,
@@ -64,8 +63,8 @@ function Controller() {
       });
     });
   };
-
-
 }
 
 module.exports = Controller;
+
+// if busy, return with a message saying that it is busy and
