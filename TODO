@@ -1,5 +1,0 @@
-Handle urls that end with a dash
-have nice templates
-show what is going on in a response stream while loading
-timeout connections
-retrieve data from the log when available
