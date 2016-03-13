@@ -17,18 +17,18 @@ module.exports = function runner(commandName, args, dir) {
 
   return new Promise(function (resolve, reject) {
     //Say what command is being executed and where
-    var output = process.cwd() + '$: ' + commandName + ' ' + args.join(' ') + '\n';
+    var output = '$: ' + commandName + ' ' + args.join(' ') + '\n';
 
     var proc = spawn(commandName, args);
     proc.stdout.on('data', function (data) {
       var buff = new Buffer(data);
       output += buff.toString('utf8');
-      console.log("PROCESS OUTPUT: " + data);
+      console.log('>>>>>>>>>: ' + data);
     });
 
     proc.stderr.on('data', function (data) {
       output += '\nERROR: ' + data;
-      console.log("PROCESS ERROR: " + data);
+      console.log('>>ERROR>>: ' + data);
     });
 
     proc.on('exit', function (code) {
