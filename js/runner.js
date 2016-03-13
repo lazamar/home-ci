@@ -5,6 +5,7 @@
 var childProcess = require('child_process');
 var spawn = childProcess.spawn;
 var Promise = require('promise');
+var utils = require('./utils');
 
 module.exports = function runner(commandName, args, dir) {
   dir = dir || process.cwd();
@@ -27,7 +28,7 @@ module.exports = function runner(commandName, args, dir) {
     });
 
     proc.stderr.on('data', function (data) {
-      output += '\nERROR: ' + data;
+      output += utils.ansiColorise('red', '\nERR: ' + data);
       console.log('>>ERROR>>: ' + data);
     });
 

@@ -60,6 +60,18 @@ module.exports = (function utils() {
     return ansi_up.ansi_to_html(withLineBreaks);
   }
 
+  var ansi = {
+    green: '\x1B[32m',
+    red: '\x1B[31m',
+    yellow: '\x1B[33m',
+    blue: '\x1b[34m',
+    none: '\x1B[0m'
+  };
+
+  function ansiColorise(color, str) {
+    return ansi[color] + str + ansi.none;
+  }
+
   function readDirectory(path) {
     var content = null;
     try {
@@ -117,6 +129,7 @@ module.exports = (function utils() {
     buildTemplate: buildTemplate,
     readDirectory: readDirectory,
     terminalToHTML: terminalToHTML,
+    ansiColorise: ansiColorise,
     writeFile: writeFile,
     readFile: readFile,
     readFileSync: readFileSync,
