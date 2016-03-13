@@ -1,5 +1,0 @@
-if repository?
-yes:
-  is downloaded ?
-  yes: npm install; npm test
-  no: git clone; change directory; npm install; npm test;
