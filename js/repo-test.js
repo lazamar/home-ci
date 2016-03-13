@@ -100,7 +100,7 @@ RepoTests.prototype.run = function run() {
     .catch(function (err) {
       console.error('Error running test: ' + err);
     })
-    .finally(function () { this.repo._setState('free'); });
+    .finally(function () { _this.repo._setState('free'); });
 };
 
 /**

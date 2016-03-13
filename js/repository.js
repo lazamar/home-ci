@@ -31,7 +31,7 @@ function Repository(username, repoName, repositoriesPath) {
   this.name = repoName;
   this.githubUrl = 'https://github.com/' + username + '/' + repoName + '.git';
   this.logsFolder = repositoriesPath + repoName + '/logs/';
-  this.forlder = repositoriesPath + repoName; //Repository folder
+  this.folder = repositoriesPath + repoName; //Repository folder
 
   var possibleStates = ['cloning', 'installing', 'pulling', 'testing', 'free'];
   var state = 'free';
@@ -71,25 +71,31 @@ function Repository(username, repoName, repositoriesPath) {
   return this;
 }
 
+Repository.prototype.isFree = function isFree() {
+  console.log('get state: ' + this.getState());
+  return (this.getState() === 'free');
+};
+
 /**
  * Clones a git repository
  * @method clone
  * @return {Promise} will be resolved to a String with the terminal output.
  */
 Repository.prototype.clone = function clone() {
-  var stateSet = this._setState('cloning');
-  if (!stateSet) { return Promise.reject('busy'); }
-
   var alreadyCloned = utils.dirExistsSync(this.folder);
   if (alreadyCloned) { return Promise.resolve(); }
+
+  var stateSet = this._setState('cloning');
+  if (!stateSet) { return Promise.reject('busy'); }
 
   var repositoriesPath = this.repositoriesPath;
   var url = this.githubUrl;
 
   console.log('cloning \t' + url);
 
+  var _this = this;
   return runner('git', ['clone', url], repositoriesPath)
-    .finally(function () { this._setState('free'); });
+    .finally(function () { _this._setState('free'); });
 };
 
 /**
@@ -105,8 +111,9 @@ Repository.prototype.pull = function pull() {
   var repoName = this.name;
   console.log('pulling \t' + repoName);
 
+  var _this = this;
   return runner('git', ['pull'], repoFolder)
-    .finally(function () { this._setState('free'); });
+    .finally(function () { _this._setState('free'); });
 };
 
 /**
@@ -121,9 +128,12 @@ Repository.prototype.install = function install() {
   var repoName = this.name;
   var repoFolder = this.folder;
 
+  var _this = this;
   console.log('installing \t' + repoName);
   return runner('npm', ['install'], repoFolder)
-  .finally(function () { this._setState('free'); });
+    .finally(function () {
+      _this._setState('free');
+    });
 };
 
 module.exports = Repository;

@@ -45,15 +45,24 @@ function Controller() {
     }
 
     var repo = repositories.get(user, repoName);
+    var pageBuilding; //Will be a promise
 
-    return repo.tests.getLastLog()
-    .then(function (log) {
-      if (log) { return log; }
+    if (repo.isFree()) {
+      pageBuilding = repo.tests.getLastLog()
+        .then(function (log) {
+          if (log) { //Return log for page to be constructed.
+            return log;
+          }
 
-      //test log not found, so let's run an install and run a test.
-      return repo.install()
-        .then(function () { return repo.tests.run(); });
-    })
+          //test log not found, so let's run an install and run a test.
+          return repo.install()
+            .then(function () { return repo.tests.run(); });
+        });
+    } else {
+      pageBuilding = Promise.resolve('Busy');
+    }
+
+    return pageBuilding
     .then(function (log) {  //Now we just build the page and return it
       return utils.buildTemplate({
         username: user,

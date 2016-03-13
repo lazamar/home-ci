@@ -19,13 +19,14 @@ server.get(/^\/[\w-.]{2,}\/[\w-.]+\/?$/, function (request, response) {
   var repoName = utils.parse.repository(request.url);
 
   control.getRepoPage(user, repoName)
-  .then(function (page) { response.write(page); })
+  .then(function (page) {
+    response.write(page);
+    response.end();
+  })
   .catch(function (err) {
     response.write('An error occurred:');
     response.write(err);
-  })
-  .finally(function () {
-    return response.end();
+    response.end();
   });
 });
 
