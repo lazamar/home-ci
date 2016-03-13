@@ -87,7 +87,7 @@ Repository.prototype.isValidGithubRepo = function isValidGithubRepo() {
 /**
  * Clones a git repository
  * @method clone
- * @return {Promise} will be resolved to a String with the terminal output.
+ * @return {Promise} will be resolved in an object with output and exitStatus
  */
 Repository.prototype.clone = function clone() {
   var alreadyCloned = utils.dirExistsSync(this.folder);
@@ -103,13 +103,16 @@ Repository.prototype.clone = function clone() {
 
   var _this = this;
   return runner('git', ['clone', url], repositoriesPath)
+    .catch(function (err) {
+      console.error('Error cloning ' + this.repo.name + ': ' + err);
+    })
     .finally(function () { _this._setState('free'); });
 };
 
 /**
  * Pulls git repository
  * @method pull
- * @return {Promise} resolves into a String with terminal output
+ * @return {Promise} will be resolved in an object with output and exitStatus
  */
 Repository.prototype.pull = function pull() {
   var stateSet = this._setState('pulling');
@@ -121,13 +124,17 @@ Repository.prototype.pull = function pull() {
 
   var _this = this;
   return runner('git', ['pull'], repoFolder)
+    .catch(function (err) {
+      console.error('Error pulling ' + this.repo.name + ': ' + err);
+    })
     .finally(function () { _this._setState('free'); });
 };
 
 /**
+ * NOTE: The tests class use this method.
  * Run npm install
  * @method install
- * @return {Promise} resolves into a String with terminal output
+ * @return {Promise} will be resolved in an object with output and exitStatus
  */
 Repository.prototype.install = function install() {
   var stateSet = this._setState('installing');
@@ -139,8 +146,40 @@ Repository.prototype.install = function install() {
   var _this = this;
   console.log('installing \t' + repoName);
   return runner('npm', ['install'], repoFolder)
-    .finally(function () {
-      _this._setState('free');
+    .catch(function (err) {
+      console.error('Error installing ' + this.repo.name + ': ' + err);
+    })
+    .finally(function () { _this._setState('free'); });
+};
+
+/**
+ * Will run an install and then execute the tests.
+ * @method run
+ * @return {Promise} Will be resolved with a String containing either the test
+ *                        	log or an error message.
+ */
+Repository.prototype.test = function test() {
+  var _this = this;
+  var installResponse;
+  var testResponse;
+
+  _this.install()
+    .then(function (res) {
+      if (!res) { return; }
+
+      installResponse = res;
+      return (installResponse.exitStatus === 0) ? _this.tests.run() : null;
+    })
+    .then(function (res) {
+      if (!installResponse) { return; } //Program error in install
+
+      testResponse = res;
+      var output = installResponse.output;
+      output += (testResponse) ? '\n' + testResponse.output : '';
+      var exitStatus = (testResponse) ? testResponse.exitStatus : installResponse.exitStatus;
+
+      //save log
+      return _this.tests.saveTest(output, exitStatus);
     });
 };
 

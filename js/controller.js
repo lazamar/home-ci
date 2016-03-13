@@ -54,10 +54,9 @@ function Controller() {
         .then(function (log) {
           if (log) { return log; }//Return log for page to be constructed.
 
-          //test log not found, so let's run an install and a test
-          //and give an appropriate answer while they execute.
-          repo.install()
-          .then(function () { repo.tests.run(); });
+          //test log not found, so let's run a test
+          //and give an appropriate answer while it executes.
+          repo.test();
 
           return 'Busy';
         });

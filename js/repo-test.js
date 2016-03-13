@@ -81,9 +81,9 @@ RepoTests.prototype.getAllLogs = function getAllLogs() {
 
 // RUNNING TESTS //
 /**
+ * Will run npm test in the repository
  * @method run
- * @return {Promise} Will be resolved with a String containing either the test
- *                        	log or an error message.
+ * @return {Promise} will be resolved in an object with output and exitStatus
  */
 RepoTests.prototype.run = function run() {
   var stateSet = this.repo._setState('testing');
@@ -94,11 +94,8 @@ RepoTests.prototype.run = function run() {
 
   console.log('Running test for ' + this.repo.name);
   return runner('npm', ['test'], this.repo.folder)
-    .then(function (res) {
-      return _this.saveTest(res.output, res.exitStatus);
-    })
     .catch(function (err) {
-      console.error('Error running test: ' + err);
+      console.error('Error running test in ' + this.repo.name + ': ' + err);
     })
     .finally(function () { _this.repo._setState('free'); });
 };
