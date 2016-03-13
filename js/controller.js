@@ -18,6 +18,7 @@ function Controller() {
   const AUTHORISED_USERS = [
     'lazamar',
     'fourlabsldn',
+    'foaly-nr1'
   ];
 
   var repositories = new Repositories(REPOSITORIES_PATH);
