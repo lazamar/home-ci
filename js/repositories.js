@@ -22,7 +22,7 @@ function Repositories(reposPath) {
    * @method get
    * @param  {String} repoName
    * @param  {String} userName
-   * @return {Repository}
+   * @return {Promise} will resolve into a Repository or into null
    */
   this.get = function get(userName, repoName) {
 
@@ -33,13 +33,27 @@ function Repositories(reposPath) {
       userName = '_constructor';
     }
 
-    if (!repos[userName]) { repos[userName] = {}; }
+    var newRepo = new Repository(userName, repoName, repositoriesPath);
 
-    if (!repos[userName][repoName]) {
-      repos[userName][repoName] = new Repository(userName, repoName, repositoriesPath);
-    }
+    return newRepo.isValidGithubRepo()
+    .then(function (isValid) {
+      if (!isValid) { return null; }
 
-    return repos[userName][repoName];
+      if (!repos[userName]) { repos[userName] = {}; }
+
+      if (!repos[userName][repoName]) {
+        repos[userName][repoName] = newRepo;
+      }
+
+      //NOTE: By default, whenever a repository is created, it will be cloned
+      //if it hasn't been cloned yet.
+      //NOTE 2: This may misbehave and return that a repository is busy when its
+      // Repository instance is constructed. Check on that.
+      var repo = repos[userName][repoName];
+      repo.clone();
+
+      return repos[userName][repoName];
+    });
   };
 }
 

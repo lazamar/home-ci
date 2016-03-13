@@ -35,35 +35,37 @@ function Controller() {
    */
   this.getRepoPage = function getRepoPage(user, repoName) {
     var authorised = isAuthorisedUser(user);
+    var rawPage; //will be a promise
 
     if (!user) {
-      return Promise.resolve('Invalid git user');
+      rawPage = Promise.resolve('Invalid git user');
     } else if (!repoName) {
-      return Promise.resolve('Invalid URL');
+      rawPage = Promise.resolve('Invalid URL');
     } else if (!authorised) {
-      return Promise.resolve('Username not authorised');
-    }
-
-    var repo = repositories.get(user, repoName);
-    var pageBuilding; //Will be a promise
-
-    if (repo.isFree()) {
-      pageBuilding = repo.tests.getLastLog()
-        .then(function (log) {
-          if (log) { //Return log for page to be constructed.
-            return log;
-          }
-
-          //test log not found, so let's run an install and run a test.
-          return repo.install()
-            .then(function () { return repo.tests.run(); });
-        });
+      rawPage = Promise.resolve('Username not authorised');
     } else {
-      pageBuilding = Promise.resolve('Busy');
+      rawPage = repositories.get(user, repoName)
+      .then(function (repo) {
+        if (!repo) { return 'Invalid repository address'; }
+
+        if (!repo.isFree()) { return 'Busy'; }
+
+        return repo.tests.getLastLog()
+        .then(function (log) {
+          if (log) { return log; }//Return log for page to be constructed.
+
+          //test log not found, so let's run an install and a test
+          //and give an appropriate answer while they execute.
+          repo.install()
+          .then(function () { repo.tests.run(); });
+
+          return 'Busy';
+        });
+      });
     }
 
-    return pageBuilding
-    .then(function (log) {  //Now we just build the page and return it
+    //Now we just build the page and return it
+    return rawPage.then(function (log) {
       return utils.buildTemplate({
         username: user,
         repo: repoName,

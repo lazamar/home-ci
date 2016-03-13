@@ -1,5 +1,6 @@
 
 var Promise = require('promise');
+var fetch = require('node-fetch');
 var utils = require('./utils');
 var runner = require('./runner'); //Process runner
 var RepoTests = require('./repo-test');
@@ -63,17 +64,24 @@ function Repository(username, repoName, repositoriesPath) {
   // All test code is in here
   this.tests = new RepoTests(this);
 
-  //NOTE: By default, whenever a repository is created, it will be cloned
-  //if it hasn't been cloned yet.
-  //NOTE 2: This may misbehave and return that a repository is busy when its
-  // Repository instance is constructed. Check on that.
-  this.clone();
   return this;
 }
 
 Repository.prototype.isFree = function isFree() {
   console.log('get state: ' + this.getState());
   return (this.getState() === 'free');
+};
+
+Repository.prototype.isValidGithubRepo = function isValidGithubRepo() {
+  return fetch(this.githubUrl)
+  .then(function (response) {
+    if (response && response.status > 199 && response.status < 300) { //Success
+      return true;
+    } else {
+      return false;
+    }
+  })
+  .catch(function () { return false; });
 };
 
 /**
