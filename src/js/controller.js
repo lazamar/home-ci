@@ -1,8 +1,7 @@
+'use strict';
 
-var fs = require('fs');
 var utils = require('./utils');
-var Promise = require('promise');
-var path = require('path');
+var Promise = require('promise'); //jshint ignore: line
 var Repositories = require('./repositories');
 
 /**
@@ -14,7 +13,7 @@ function Controller() {
   }
 
   //Constants
-  const PROJECT_ROOT = utils.joinPath(__dirname, '..');
+  const PROJECT_ROOT = utils.joinPath(__dirname, '..', '..');
   const REPOSITORIES_PATH = utils.joinPath(PROJECT_ROOT, 'repositories/');
   const AUTHORISED_USERS = [
     'lazamar',
@@ -30,7 +29,6 @@ function Controller() {
 
   function validateUserAndRepo(user, repoName) {
     var authorised = isAuthorisedUser(user);
-    var rawPage; //will be a promise
     var err = null;
 
     if (!user) {
@@ -95,7 +93,7 @@ function Controller() {
     var err = validateUserAndRepo(user, repoName);
     if (err) { return Promise.reject(err); }
 
-    var rawPage = repositories.get(user, repoName)
+    repositories.get(user, repoName)
     .then(function (repo) {
       if (typeof repo !== 'object') {
         throw new Error('Invalid Object returned by Repositories.get()');

@@ -1,11 +1,13 @@
 // ------------------------------------------------------------------------
 // Server code
 // ------------------------------------------------------------------------
+'use strict';
 
 var express = require('express');
 var utils = require('./utils');
 var Controller = require('./controller.js');
 var control = new Controller();
+var publicFolder = utils.joinPath(__dirname, '..', '..', 'public');
 
 //Lets define a port we want to listen to
 var PORT = 4000;
@@ -32,7 +34,7 @@ server.get(/^\/[\w-.]{2,}\/[\w-.]+\/?$/, function (request, response) {
 
 // Landing page
 server.get(/\/$/, function (request, response) {
-  var homePage = utils.readFile('public/index.html')
+  utils.readFile(publicFolder + '/index.html')
   .then(function (index) {
     response.write(index);
     response.end();
@@ -50,7 +52,6 @@ server.get(/^\/webhook\/[\w-.]{2,}\/[\w-.]+\/?/, function (request, response) {
 });
 
 // Serve static files.
-var publicFolder = utils.joinPath(__dirname, '..', 'public');
 server.use('/s', express.static(publicFolder));
 
 //Lets start our server

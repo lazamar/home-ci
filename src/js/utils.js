@@ -1,14 +1,12 @@
 var fs = require('fs');
 var mkdirp = require('mkdirp');
-var Promise = require('promise');
+var Promise = require('promise'); //jshint ignore:line
 var ansi_up = require('ansi_up'); //ANSI to coloured HTML
 var rimraf = require('rimraf');
-var projectRoot = process.cwd() + '/';
 var Path = require('path');
 
 module.exports = (function utils() {
-
-  var exp = {};
+  'use strict';
 
   var parse = (function () {
     var validateRegex = /^(\/)([\w-]+)(?:(\/)([\w-]+))?/;
@@ -147,7 +145,9 @@ module.exports = (function utils() {
       return null;
     }
 
-    return readFile(projectRoot + 'html/project_page.html')
+    var projectRoot = joinPath(__dirname, '..', '..');
+    var htmlFolder = joinPath(projectRoot, 'src', 'html');
+    return readFile(htmlFolder + '/project_page.html')
       .then(function (template) {
         if (!template) {
           return 'Error building Template \n';
