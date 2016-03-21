@@ -1,5 +1,5 @@
 
-var Promise = require('promise');
+var Promise = require('promise'); //jshint ignore: line
 var fetch = require('node-fetch');
 var utils = require('./utils');
 var runner = require('./runner'); //Process runner
@@ -30,12 +30,11 @@ function Repository(username, repoName, repositoriesPath) {
     throw new Error('Repository: No "repositoriesPath" argument provided.');
   }
 
-  this.repositoriesPath = repositoriesPath;
   this.username = username;
   this.name = repoName;
   this.githubUrl = 'https://github.com/' + username + '/' + repoName + '.git';
-  this.logsFolder = path.join(repositoriesPath, repoName, 'logs');
-  this.folder = path.join(repositoriesPath, repoName); //Repository folder
+  this.logsFolder = path.join(repositoriesPath, username, repoName + '-logs');
+  this.folder = path.join(repositoriesPath, username, repoName); //Repository folder
 
   var possibleStates = ['cloning', 'installing', 'pulling', 'testing', 'free'];
   var state = 'free';
@@ -147,6 +146,13 @@ Repository.prototype.pull = function pull() {
  * @return {Promise} will be resolved in an object with output and exitStatus
  */
 Repository.prototype.install = function install() {
+
+  var packageJsonPath = path.format({ dir: this.folder, base: 'package.json' });
+  var hasPackageJson = utils.fileExistsSync(packageJsonPath);
+  if (!hasPackageJson) {
+    return Promise.reject('No package.json found. Installation failed.');
+  }
+
   var stateSet = this._setState('installing');
   if (!stateSet) { return Promise.reject('busy'); }
 
@@ -164,7 +170,7 @@ Repository.prototype.install = function install() {
 };
 
 /**
- * Will run an install and then execute the tests.
+ * Will clone if needed, run an install and then execute the tests.
  * @method run
  * @return {Promise} Will be resolved with a String containing either the test
  *                        	log or an error message.
@@ -174,8 +180,11 @@ Repository.prototype.test = function test() {
   var installResponse;
   var testResponse;
 
-  _this.install()
-    .then(function (res) {
+  return _this.clone()
+    .then(function () {
+      return _this.install();
+    })
+   .then(function (res) {
       if (!res) { return; }
 
       installResponse = res;

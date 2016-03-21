@@ -62,7 +62,7 @@ function Controller() {
           //and give an appropriate answer while it executes.
           repo.test();
 
-          return 'Busy ' + repo.getState();
+          return 'Busy preparing for tests';
         });
       })
       .catch(function (err) {

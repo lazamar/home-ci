@@ -55,13 +55,6 @@ function Repositories(reposPath) {
         repos[userName][repoName] = newRepo;
       }
 
-      //NOTE: By default, whenever a repository is created, it will be cloned
-      //if it hasn't been cloned yet.
-      //NOTE 2: This may misbehave and return that a repository is busy when its
-      // Repository instance is constructed. Check on that.
-      var repo = repos[userName][repoName];
-      repo.clone();
-
       return repos[userName][repoName];
     });
   };

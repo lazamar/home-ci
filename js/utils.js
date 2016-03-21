@@ -84,7 +84,31 @@ module.exports = (function utils() {
   }
 
   function dirExistsSync(dir) {
-    return fs.existsSync(dir);
+    try {
+      return fs.statSync(dir).isDirectory();
+    } catch (e) {
+
+      // no such file or directory. File really does not exist
+      if (e.code === 'ENOENT') { return false; }
+
+      // something else went wrong, we don't have rights or something
+      console.log('Exception fs.statSync (' + dir + '): ' + e);
+      throw e;
+    }
+  }
+
+  function fileExistsSync(filePath) {
+    try {
+      return fs.statSync(filePath).isFile();
+    } catch (e) {
+
+      // no such file or directory. File really does not exist
+      if (e.code === 'ENOENT') { return false; }
+
+      // something else went wrong, we don't have rights or something
+      console.log('Exception fs.statSync (' + filePath + '): ' + e);
+      throw e;
+    }
   }
 
   function buildTemplate(fields) {
@@ -136,6 +160,7 @@ module.exports = (function utils() {
     parse: parse,
     compareFileNames: compareFileNames,
     getFileNumber: getFileNumber,
-    dirExistsSync: dirExistsSync
+    dirExistsSync: dirExistsSync,
+    fileExistsSync: fileExistsSync,
   };
 }());
