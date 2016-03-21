@@ -4,6 +4,9 @@ var fetch = require('node-fetch');
 var utils = require('./utils');
 var runner = require('./runner'); //Process runner
 var RepoTests = require('./repo-test');
+var NodeGit = require('nodegit');
+var secrets = require('./secrets');
+var GITHUB_TOKEN = secrets.personalAccessToken;
 
 /**
  * Each Repository instance represents one github repository
@@ -90,23 +93,43 @@ Repository.prototype.isValidGithubRepo = function isValidGithubRepo() {
  * @return {Promise} will be resolved in an object with output and exitStatus
  */
 Repository.prototype.clone = function clone() {
+
   var alreadyCloned = utils.dirExistsSync(this.folder);
   if (alreadyCloned) { return Promise.resolve(); }
 
   var stateSet = this._setState('cloning');
   if (!stateSet) { return Promise.reject('busy'); }
 
+  //Nodegit specific stuff.
+  var cloneOptions = {
+    fetchOpts: {
+      callbacks: {
+        certificateCheck: function () { return 1; },
+
+        credentials: function () {
+          return NodeGit.Cred.userpassPlaintextNew(GITHUB_TOKEN, 'x-oauth-basic');
+        }
+      }
+    }
+  };
   var repositoriesPath = this.repositoriesPath;
   var url = this.githubUrl;
-
-  console.log('cloning \t' + url);
-
   var _this = this;
-  return runner('git', ['clone', url], repositoriesPath)
+  var cloning = NodeGit.Clone(url, repositoriesPath, cloneOptions)
+    .then(function (repository) {
+      var res = {};
+      res.output = 'Cloned successfully.';
+      res.exitStatus = 0;
+      return res;
+    })
     .catch(function (err) {
-      console.error('Error cloning ' + this.repo.name + ': ' + err);
+      console.error('Error cloning ' + _this.name + ': ' + err);
+      return { exitStatus: 1 };
     })
     .finally(function () { _this._setState('free'); });
+
+  console.log('cloning \t' + url);
+  return cloning;
 };
 
 /**
@@ -125,7 +148,7 @@ Repository.prototype.pull = function pull() {
   var _this = this;
   return runner('git', ['pull'], repoFolder)
     .catch(function (err) {
-      console.error('Error pulling ' + this.repo.name + ': ' + err);
+      console.error('Error pulling ' + _this.name + ': ' + err);
     })
     .finally(function () { _this._setState('free'); });
 };
@@ -147,7 +170,7 @@ Repository.prototype.install = function install() {
   console.log('installing \t' + repoName);
   return runner('npm', ['install'], repoFolder)
     .catch(function (err) {
-      console.error('Error installing ' + this.repo.name + ': ' + err);
+      console.error('Error installing ' + _this.name + ': ' + err);
     })
     .finally(function () { _this._setState('free'); });
 };

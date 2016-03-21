@@ -95,7 +95,7 @@ RepoTests.prototype.run = function run() {
   console.log('Running test for ' + this.repo.name);
   return runner('npm', ['test'], this.repo.folder)
     .catch(function (err) {
-      console.error('Error running test in ' + this.repo.name + ': ' + err);
+      console.error('Error running test in ' + _this.repo.name + ': ' + err);
     })
     .finally(function () { _this.repo._setState('free'); });
 };
