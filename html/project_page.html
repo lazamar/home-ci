@@ -2,7 +2,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Home-CLI</title>
-  <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/jasonm23/markdown-css-themes/gh-pages/swiss.css"></link>
+  <link rel="stylesheet" type="text/css" href="/s/swiss.css"></link>
+  <link rel="stylesheet" type="text/css" href="/s/custom.css"></link>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   <style>
     pre {
       line-height: 70%;
@@ -10,12 +12,18 @@
   </style>
 </head>
 <body>
-  <h1>$$USERNAME$$/$$REPO$$</h1>
+  <h1>$$USERNAME$$/$$REPO$$ <i class='status-icon fa'></i></h1>
+  <div class="load-bar hidden">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
   <pre class="container">
     $$CONTENT$$
   </pre>
   <script>
     $$SCRIPT$$
   </script>
+  <script src="/s/repo.js"></script>
 </body>
 </html>
