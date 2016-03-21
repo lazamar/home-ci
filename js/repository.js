@@ -33,8 +33,8 @@ function Repository(username, repoName, repositoriesPath) {
   this.username = username;
   this.name = repoName;
   this.githubUrl = 'https://github.com/' + username + '/' + repoName + '.git';
-  this.logsFolder = path.join(repositoriesPath, username, repoName + '-logs');
-  this.folder = path.join(repositoriesPath, username, repoName); //Repository folder
+  this.logsFolder = utils.joinPath(repositoriesPath, username, repoName + '-logs');
+  this.folder = utils.joinPath(repositoriesPath, username, repoName); //Repository folder
 
   var possibleStates = ['cloning', 'installing', 'pulling', 'testing', 'free'];
   var state = 'free';

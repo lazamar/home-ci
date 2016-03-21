@@ -4,6 +4,7 @@ var Promise = require('promise');
 var ansi_up = require('ansi_up'); //ANSI to coloured HTML
 var rimraf = require('rimraf');
 var projectRoot = process.cwd() + '/';
+var Path = require('path');
 
 module.exports = (function utils() {
 
@@ -137,6 +138,10 @@ module.exports = (function utils() {
     });
   }
 
+  function joinPath() {
+    return Path.join.apply({}, arguments);
+  }
+
   function buildTemplate(fields) {
     if (!fields || !fields.repo || !fields.username) {
       return null;
@@ -189,5 +194,6 @@ module.exports = (function utils() {
     dirExistsSync: dirExistsSync,
     fileExistsSync: fileExistsSync,
     deleteDir: deleteDir,
+    joinPath: joinPath,
   };
 }());

@@ -14,8 +14,8 @@ function Controller() {
   }
 
   //Constants
-  const PROJECT_ROOT = path.join(__dirname, '..');
-  const REPOSITORIES_PATH = path.join(PROJECT_ROOT, 'repositories/');
+  const PROJECT_ROOT = utils.joinPath(__dirname, '..');
+  const REPOSITORIES_PATH = utils.joinPath(PROJECT_ROOT, 'repositories/');
   const AUTHORISED_USERS = [
     'lazamar',
     'fourlabsldn',

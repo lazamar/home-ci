@@ -49,6 +49,10 @@ server.get(/^\/webhook\/[\w-.]{2,}\/[\w-.]+\/?/, function (request, response) {
   response.end('Push event recorded');
 });
 
+// Serve static files.
+var publicFolder = utils.joinPath(__dirname, '..', 'public');
+server.use('/s', express.static(publicFolder));
+
 //Lets start our server
 server.listen(PORT, function () {
   //Callback triggered when server is successfully listening. Hurray!
