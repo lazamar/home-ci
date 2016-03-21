@@ -32,7 +32,7 @@ server.get(/^\/[\w-.]{2,}\/[\w-.]+\/?$/, function (request, response) {
 
 // Landing page
 server.get(/\/$/, function (request, response) {
-  var homePage = utils.readFile('html/index.html')
+  var homePage = utils.readFile('public/index.html')
   .then(function (index) {
     response.write(index);
     response.end();
