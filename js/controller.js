@@ -49,7 +49,7 @@ function Controller() {
       .then(function (repo) {
         if (!repo) { return 'Invalid repository address'; }
 
-        if (!repo.isFree()) { return 'Busy'; }
+        if (!repo.isFree()) { return 'Busy ' + repo.getState(); }
 
         return repo.tests.getLastLog()
         .then(function (log) {
@@ -59,7 +59,7 @@ function Controller() {
           //and give an appropriate answer while it executes.
           repo.test();
 
-          return 'Busy';
+          return 'Busy ' + repo.getState();
         });
       });
     }

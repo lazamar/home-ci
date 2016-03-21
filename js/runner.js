@@ -7,14 +7,14 @@ var spawn = childProcess.spawn;
 var Promise = require('promise');
 var utils = require('./utils');
 
-module.exports = function runner(commandName, args, dir) {
+module.exports = function runner(commandName, args, dir, timeoutTime) {
   dir = dir || process.cwd();
 
   console.log(commandName + ' ' + [].join.call(args, ' '));
 
   //Change current working directory
   process.chdir(dir);
-  var timeoutTime = 60000; // 1min
+  timeoutTime = timeoutTime || 60000; // default: 1min
   return new Promise(function (resolve, reject) {
 
     //Object to be returned
@@ -30,7 +30,8 @@ module.exports = function runner(commandName, args, dir) {
     var timeout = setTimeout(function () {
       proc.kill('SIGINT');
       res.output += utils.ansiColorise('red',
-          '\nTest timed out. Test duration over ' + timeoutTime);
+          '\nCommand "' + commandName + ' ' + args.join(' ') + '" timed out.' +
+          ' Duration over ' + timeoutTime);
 
       res.exitStatus = 1;
       resolve(res);

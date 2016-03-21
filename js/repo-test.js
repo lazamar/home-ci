@@ -1,5 +1,6 @@
 var utils = require('./utils');
 var runner = require('./runner');
+var path = require('path');
 
 // This is under Repository.tests
 /**
@@ -55,7 +56,8 @@ RepoTests.prototype.getLastLog = function getLastLog() {
 
   if (lastTest) {
     var logsFolder = this.repo.logsFolder;
-    return utils.readFile(logsFolder + lastTest);
+    var testPath = path.format({ dir: logsFolder, base: lastTest });
+    return utils.readFile(testPath);
   } else {
     return Promise.resolve(null);
   }
@@ -71,9 +73,11 @@ RepoTests.prototype.getAllLogs = function getAllLogs() {
   var testFileNames = this.getFileNames();
   var logsFolder = this.repo.logsFolder;
   var testLogs = [];
+  var testPath;
 
   for (var i = 0; i < testFileNames.length; i++) {
-    testLogs[i] = utils.readFileSync(logsFolder + testFileNames[i]);
+    testPath = path.format({ dir: logsFolder, base: testFileNames[i] });
+    testLogs[i] = utils.readFileSync(testPath);
   }
 
   return testLogs;
@@ -89,7 +93,6 @@ RepoTests.prototype.run = function run() {
   var stateSet = this.repo._setState('testing');
   if (!stateSet) { return Promise.reject('busy'); }
 
-  var repositoriesPath = this.repositoriesPath;
   var _this = this;
 
   console.log('Running test for ' + this.repo.name);
@@ -132,7 +135,7 @@ RepoTests.prototype.saveTest = function saveTest(content, exitStatus) {
   //Write log to file
   var logsFolder = this.repo.logsFolder;
   var testName = 'test-' + newTestNo + '.log';
-  var fullPath = logsFolder + testName;
+  var fullPath = path.format({ dir: logsFolder, base: testName });
 
   utils.writeFile(fullPath, log);
   return log;

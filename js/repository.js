@@ -34,8 +34,8 @@ function Repository(username, repoName, repositoriesPath) {
   this.username = username;
   this.name = repoName;
   this.githubUrl = 'https://github.com/' + username + '/' + repoName + '.git';
-  this.logsFolder = repositoriesPath + repoName + '/logs/';
-  this.folder = repositoriesPath + repoName; //Repository folder
+  this.logsFolder = path.join(repositoriesPath, repoName, 'logs');
+  this.folder = path.join(repositoriesPath, repoName); //Repository folder
 
   var possibleStates = ['cloning', 'installing', 'pulling', 'testing', 'free'];
   var state = 'free';
@@ -100,9 +100,11 @@ Repository.prototype.clone = function clone() {
   var stateSet = this._setState('cloning');
   if (!stateSet) { return Promise.reject('busy'); }
 
-  var cloneFolder = path.join(this.repositoriesPath, this.name);
+  //Variables for cloning
+  var cloneFolder = this.folder;
   var url = this.githubUrl;
   var _this = this;
+
   var cloning = NodeGit.Clone(url, cloneFolder)
     .then(function (repository) {
       return { exitStatus: 0, output: 'Cloned successfully.' };
@@ -148,12 +150,13 @@ Repository.prototype.install = function install() {
   var stateSet = this._setState('installing');
   if (!stateSet) { return Promise.reject('busy'); }
 
+  var maxTime = 300000; //Five minutes
   var repoName = this.name;
   var repoFolder = this.folder;
 
   var _this = this;
   console.log('installing \t' + repoName);
-  return runner('npm', ['install'], repoFolder)
+  return runner('npm', ['install'], repoFolder, maxTime)
     .catch(function (err) {
       console.error('Error installing ' + _this.name + ': ' + err);
     })
