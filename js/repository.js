@@ -170,6 +170,16 @@ Repository.prototype.install = function install() {
 };
 
 /**
+ * Deletes files downloaded from Github.
+ * Does not delete log files
+ * @method deleteFiles
+ * @return {Promise} Will resolve in void or fail with an error.
+ */
+Repository.prototype.deleteFiles = function () {
+  return utils.deleteDir(this.folder);
+};
+
+/**
  * Will clone if needed, run an install and then execute the tests.
  * @method run
  * @return {Promise} Will be resolved with a String containing either the test
@@ -199,7 +209,12 @@ Repository.prototype.test = function test() {
       var exitStatus = (testResponse) ? testResponse.exitStatus : installResponse.exitStatus;
 
       //save log
-      return _this.tests.saveTest(output, exitStatus);
+      var log = _this.tests.saveTest(output, exitStatus);
+
+      //Now we delete all files downloaded from Github
+      _this.deleteFiles();
+
+      return log;
     });
 };
 

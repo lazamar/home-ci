@@ -2,6 +2,7 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var Promise = require('promise');
 var ansi_up = require('ansi_up'); //ANSI to coloured HTML
+var rimraf = require('rimraf');
 var projectRoot = process.cwd() + '/';
 
 module.exports = (function utils() {
@@ -47,8 +48,10 @@ module.exports = (function utils() {
     return new Promise(function (resolve, reject) {
       fs.writeFile(filePath, content, function (err) {
         if (err) {
+          console.log('writing error');
           reject(err);
         } else {
+          console.log('Successfully written.');
           resolve(content);
         }
       });
@@ -83,32 +86,55 @@ module.exports = (function utils() {
     return content;
   }
 
-  function dirExistsSync(dir) {
+  /**
+   * [checkExistsSync description]
+   * @param  {String} what directory or file
+   * @param  {String} path
+   * @return {Boolean}
+   */
+  function checkExistsSync(what, path) {
     try {
-      return fs.statSync(dir).isDirectory();
+      if (what === 'file') {
+        return fs.statSync(path).isFile();
+      } else if (what === 'directory') {
+        return fs.statSync(path).isDirectory();
+      } else {
+        throw new Error('Unexpected parameter value in utils.checkExistsSync.');
+      }
     } catch (e) {
-
       // no such file or directory. File really does not exist
       if (e.code === 'ENOENT') { return false; }
 
       // something else went wrong, we don't have rights or something
-      console.log('Exception fs.statSync (' + dir + '): ' + e);
+      console.log('Exception fs.statSync (' + path + '): ' + e);
       throw e;
     }
   }
 
+  function dirExistsSync(dir) {
+    return checkExistsSync('directory', dir);
+  }
+
   function fileExistsSync(filePath) {
-    try {
-      return fs.statSync(filePath).isFile();
-    } catch (e) {
+    return checkExistsSync('file', filePath);
+  }
 
-      // no such file or directory. File really does not exist
-      if (e.code === 'ENOENT') { return false; }
-
-      // something else went wrong, we don't have rights or something
-      console.log('Exception fs.statSync (' + filePath + '): ' + e);
-      throw e;
-    }
+  /**
+   * Deletes a directory and everything within it.
+   * @method deleteDir
+   * @param  {String} path
+   * @return {Promise}      Will resolve with void or fail with an error
+   */
+  function deleteDir(path) {
+    return new Promise(function (resolve, reject) {
+      rimraf(path, { glob: false }, function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
   }
 
   function buildTemplate(fields) {
@@ -162,5 +188,6 @@ module.exports = (function utils() {
     getFileNumber: getFileNumber,
     dirExistsSync: dirExistsSync,
     fileExistsSync: fileExistsSync,
+    deleteDir: deleteDir,
   };
 }());
