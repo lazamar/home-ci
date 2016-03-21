@@ -4,9 +4,9 @@ var fetch = require('node-fetch');
 var utils = require('./utils');
 var runner = require('./runner'); //Process runner
 var RepoTests = require('./repo-test');
+var path = require('path');
 var NodeGit = require('nodegit');
-var secrets = require('./secrets');
-var GITHUB_TOKEN = secrets.personalAccessToken;
+var GITHUB_TOKEN = require('./secrets').personalAccessToken;
 
 /**
  * Each Repository instance represents one github repository
@@ -100,27 +100,12 @@ Repository.prototype.clone = function clone() {
   var stateSet = this._setState('cloning');
   if (!stateSet) { return Promise.reject('busy'); }
 
-  //Nodegit specific stuff.
-  var cloneOptions = {
-    fetchOpts: {
-      callbacks: {
-        certificateCheck: function () { return 1; },
-
-        credentials: function () {
-          return NodeGit.Cred.userpassPlaintextNew(GITHUB_TOKEN, 'x-oauth-basic');
-        }
-      }
-    }
-  };
-  var repositoriesPath = this.repositoriesPath;
+  var cloneFolder = path.join(this.repositoriesPath, this.name);
   var url = this.githubUrl;
   var _this = this;
-  var cloning = NodeGit.Clone(url, repositoriesPath, cloneOptions)
+  var cloning = NodeGit.Clone(url, cloneFolder)
     .then(function (repository) {
-      var res = {};
-      res.output = 'Cloned successfully.';
-      res.exitStatus = 0;
-      return res;
+      return { exitStatus: 0, output: 'Cloned successfully.' };
     })
     .catch(function (err) {
       console.error('Error cloning ' + _this.name + ': ' + err);
