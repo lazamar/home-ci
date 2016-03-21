@@ -39,6 +39,16 @@ server.get(/\/$/, function (request, response) {
   });
 });
 
+// "/webhook/username/repo" request types
+server.get(/^\/webhook\/[\w-.]{2,}\/[\w-.]+\/?/, function (request, response) {
+  var userRepoUrl = request.url.replace('/webhook', '');
+  var user = utils.parse.user(userRepoUrl);
+  var repoName = utils.parse.repository(userRepoUrl);
+
+  control.webhookEvent('push', user, repoName);
+  response.end('Push event recorded');
+});
+
 //Lets start our server
 server.listen(PORT, function () {
   //Callback triggered when server is successfully listening. Hurray!
