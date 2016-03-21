@@ -2,6 +2,7 @@
 var fs = require('fs');
 var utils = require('./utils');
 var Promise = require('promise');
+var path = require('path');
 var Repositories = require('./repositories');
 
 /**
@@ -13,8 +14,8 @@ function Controller() {
   }
 
   //Constants
-  const PROJECT_ROOT = process.cwd() + '/';
-  const REPOSITORIES_PATH = PROJECT_ROOT + 'repositories/';
+  const PROJECT_ROOT = path.join(__dirname, '..');
+  const REPOSITORIES_PATH = path.join(PROJECT_ROOT, 'repositories/');
   const AUTHORISED_USERS = [
     'lazamar',
     'fourlabsldn',
