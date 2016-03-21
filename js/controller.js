@@ -47,7 +47,9 @@ function Controller() {
     } else {
       rawPage = repositories.get(user, repoName)
       .then(function (repo) {
-        if (!repo) { return 'Invalid repository address'; }
+        if (typeof repo !== 'object') {
+          throw new Error('Invalid Object returned by Repositories.get()');
+        }
 
         if (!repo.isFree()) { return 'Busy ' + repo.getState(); }
 
@@ -61,6 +63,10 @@ function Controller() {
 
           return 'Busy ' + repo.getState();
         });
+      })
+      .catch(function (err) {
+        console.error(err);
+        return err;
       });
     }
 
