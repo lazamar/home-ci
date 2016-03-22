@@ -1,9 +1,9 @@
 //This will be sent by the server
 var STATUS = {
-  success: true,
+  success: false,
 
   //Possible values: ['cloning', 'installing', 'pulling', 'testing', 'free'],
-  availability: 'installing',
+  availability: 'free',
 };
 
 (function (stats) {
