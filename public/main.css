@@ -122,6 +122,12 @@ a, a:visited {
   font-size: 100px;
   font-family: LatoWebHeavy;
   text-align: center; }
+  .main-title a:visited,
+  .main-title a:hover,
+  .main-title a:active,
+  .main-title a {
+    text-decoration: none;
+    color: #009688; }
   .main-title img {
     height: 1.2em;
     display: inline-block;

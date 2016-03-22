@@ -3,7 +3,7 @@ var STATUS = {
   success: false,
 
   //Possible values: ['cloning', 'installing', 'pulling', 'testing', 'free'],
-  availability: 'free',
+  availability: 'cloning',
 };
 
 (function (stats) {
