@@ -1,4 +1,4 @@
 node_modules/
 repositories/*
-js/secrets.js
+src/js/secrets.js
 .sass-cache
