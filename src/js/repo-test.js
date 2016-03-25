@@ -13,6 +13,7 @@ function RepoTests(repo) {
   }
 
   this.repo = repo;
+  return this;
 }
 
 /**
@@ -145,11 +146,11 @@ RepoTests.prototype.saveTest = function saveTest(content, exitStatus) {
   console.log('saving test');
   var log = this.formatTestLog(content, exitStatus);
 
-  //Find log number
+  // Find log number
   var lastTestNo = this.getNumberOfLast() || 0;
   var newTestNo = lastTestNo + 1;
 
-  //Write log to file
+  // Write log to file
   var logsFolder = this.repo.logsFolder;
   var testName = 'test-' + newTestNo + '.log';
   var fullPath = path.format({ dir: logsFolder, base: testName });
