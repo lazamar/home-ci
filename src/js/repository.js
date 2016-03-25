@@ -36,8 +36,22 @@ function Repository(username, repoName, repositoriesPath) {
   this.logsFolder = utils.joinPath(repositoriesPath, username, repoName + '-logs');
   this.folder = utils.joinPath(repositoriesPath, username, repoName); //Repository folder
 
+  //Private variables
   var possibleStates = ['cloning', 'installing', 'pulling', 'testing', 'free'];
   var state = 'free';
+  var passingTests = false;
+
+  this.isPassingTests = function isPassingTests() {
+    return passingTests;
+  }
+
+  this.passedTest = function passedTest(bool) {
+    if (bool !== true && bool !== false) {
+      throw new Error('Repository.passedTest(): Parameter bust be boolean.');
+    }
+
+    passingTests = bool;
+  };
 
   /**
    * The state will serve as a lock. Whenever a repository is in any stater
