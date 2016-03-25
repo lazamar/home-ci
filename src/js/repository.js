@@ -1,8 +1,8 @@
 
-var Promise = require('promise'); //jshint ignore: line
+var Promise = require('promise');
 var fetch = require('node-fetch');
 var utils = require('./utils');
-var runner = require('./runner'); //Process runner
+var runner = require('./runner');
 var RepoTests = require('./repo-test');
 var path = require('path');
 var NodeGit = require('nodegit');
@@ -16,8 +16,7 @@ var GITHUB_TOKEN = require('./secrets').personalAccessToken;
  * @param {String} repositoriesPath
  */
 function Repository(username, repoName, repositoriesPath) {
-
-  //Check if invoked as constructor
+  // Check if invoked as constructor
   if (!(this instanceof Repository)) {
     return new Repository(username, repoName, repositoriesPath);
   }
@@ -34,16 +33,16 @@ function Repository(username, repoName, repositoriesPath) {
   this.name = repoName;
   this.githubUrl = 'https://github.com/' + username + '/' + repoName + '.git';
   this.logsFolder = utils.joinPath(repositoriesPath, username, repoName + '-logs');
-  this.folder = utils.joinPath(repositoriesPath, username, repoName); //Repository folder
+  this.folder = utils.joinPath(repositoriesPath, username, repoName); // Repository folder
 
-  //Private variables
+  // Private variables
   var possibleStates = ['cloning', 'installing', 'pulling', 'testing', 'free'];
   var state = 'free';
   var passingTests = false;
 
   this.isPassingTests = function isPassingTests() {
     return passingTests;
-  }
+  };
 
   this.passedTest = function passedTests(bool) {
     if (bool !== true && bool !== false) {
@@ -60,8 +59,8 @@ function Repository(username, repoName, repositoriesPath) {
    * @param {String} newState
    * @return {Boolean} whether the state was set or not.
    */
-  this._setState = function _setState(newState) {
-    newState = newState.toLowerCase();
+  this._setState = function _setState(newStateUnnormalised) {
+    var newState = newStateUnnormalised.toLowerCase();
     if (possibleStates.indexOf(newState) < 0) {
       console.error('Repository._setState(): "' + newState + '" is not a valid state.');
       return false;
@@ -90,14 +89,15 @@ Repository.prototype.isFree = function isFree() {
 
 Repository.prototype.isValidGithubRepo = function isValidGithubRepo() {
   return fetch(this.githubUrl)
-  .then(function (response) {
-    if (response && response.status > 199 && response.status < 300) { //Success
+  .then(function t(response) {
+    // Success
+    if (response && response.status > 199 && response.status < 300) {
       return true;
-    } else {
-      return false;
     }
+
+    return false;
   })
-  .catch(function () { return false; });
+  .catch(function c() { return false; });
 };
 
 /**
@@ -106,20 +106,27 @@ Repository.prototype.isValidGithubRepo = function isValidGithubRepo() {
  * @return {Promise} will be resolved in an object with output and exitStatus
  */
 Repository.prototype.clone = function clone() {
-
   var alreadyCloned = utils.dirExistsSync(this.folder);
   if (alreadyCloned) { return Promise.resolve(); }
 
   var stateSet = this._setState('cloning');
   if (!stateSet) { return Promise.reject('busy'); }
 
-  //Variables for cloning
+  // Variables for cloning
+  var cloneOptions = {
+    fetchOpts: {
+      callbacks: {
+        credentials: function () {
+          return NodeGit.Cred.userpassPlaintextNew(GITHUB_TOKEN, 'x-oauth-basic');
+        },
+      },
+    },
+  };
   var cloneFolder = this.folder;
   var url = this.githubUrl;
   var _this = this;
-
-  var cloning = NodeGit.Clone(url, cloneFolder)
-    .then(function (repository) {
+  var cloning = NodeGit.Clone(url, cloneFolder, cloneOptions) // eslint-disable-line
+    .then(function () {
       return { exitStatus: 0, output: 'Cloned successfully.' };
     })
     .catch(function (err) {
@@ -160,7 +167,6 @@ Repository.prototype.pull = function pull() {
  * @return {Promise} will be resolved in an object with output and exitStatus
  */
 Repository.prototype.install = function install() {
-
   var packageJsonPath = path.format({ dir: this.folder, base: 'package.json' });
   var hasPackageJson = utils.fileExistsSync(packageJsonPath);
   if (!hasPackageJson) {
@@ -170,7 +176,7 @@ Repository.prototype.install = function install() {
   var stateSet = this._setState('installing');
   if (!stateSet) { return Promise.reject('busy'); }
 
-  var maxTime = 300000; //Five minutes
+  var maxTime = 300000; // Five minutes
   var repoName = this.name;
   var repoFolder = this.folder;
 
@@ -209,27 +215,27 @@ Repository.prototype.test = function test() {
       return _this.install();
     })
    .then(function (res) {
-      if (!res) { return; }
+     if (!res) { return null; }
 
-      installResponse = res;
-      return (installResponse.exitStatus === 0) ? _this.tests.run() : null;
-    })
-    .then(function (res) {
-      if (!installResponse) { return; } //Program error in install
+     installResponse = res;
+     return (installResponse.exitStatus === 0) ? _this.tests.run() : null;
+   })
+  .then(function (res) {
+    if (!installResponse) { return null; } // Program error in install
 
-      testResponse = res;
-      var output = installResponse.output;
-      output += (testResponse) ? '\n' + testResponse.output : '';
-      var exitStatus = (testResponse) ? testResponse.exitStatus : installResponse.exitStatus;
+    testResponse = res;
+    var output = installResponse.output;
+    output += (testResponse) ? '\n' + testResponse.output : '';
+    var exitStatus = (testResponse) ? testResponse.exitStatus : installResponse.exitStatus;
 
-      //save log
-      var log = _this.tests.saveTest(output, exitStatus);
+    // save log
+    var log = _this.tests.saveTest(output, exitStatus);
 
-      //Now we delete all files downloaded from Github
-      _this.deleteFiles();
+    // Now we delete all files downloaded from Github
+    _this.deleteFiles();
 
-      return log;
-    });
+    return log;
+  });
 };
 
 module.exports = Repository;
