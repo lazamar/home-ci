@@ -45,7 +45,7 @@ function Repository(username, repoName, repositoriesPath) {
     return passingTests;
   }
 
-  this.passedTest = function passedTest(bool) {
+  this.passedTest = function passedTests(bool) {
     if (bool !== true && bool !== false) {
       throw new Error('Repository.passedTest(): Parameter bust be boolean.');
     }
