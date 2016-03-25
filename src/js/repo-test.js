@@ -105,15 +105,21 @@ RepoTests.prototype.run = function run() {
 
 /**
  * Format a test log
- * @method formatTest
+ * @method formatTestLog
  * @param  {String} content
  * @param  {int} exitStatus
  * @return {String}            The formatted log
  */
-RepoTests.prototype.formatTest = function formatTest(content, exitStatus) {
-  //Prettify terminal log;
-  var log = utils.terminalToHTML(content);
-  log += 'Exit status: ' + exitStatus;
+RepoTests.prototype.formatTestLog = function formatTestLog(content, exitStatus) {
+  // Prettify terminal log;
+  var prettyOutput = utils.terminalToHTML(content);
+
+  var logObj = {};
+  logObj.output = prettyOutput;
+  logObj.exitStatus = exitStatus;
+  logObj.success = (exitStatus === 0);
+
+  var log = JSON.stringify(logObj);
   return log;
 };
 
@@ -126,7 +132,7 @@ RepoTests.prototype.formatTest = function formatTest(content, exitStatus) {
  */
 RepoTests.prototype.saveTest = function saveTest(content, exitStatus) {
   console.log('saving test');
-  var log = this.formatTest(content, exitStatus);
+  var log = this.formatTestLog(content, exitStatus);
 
   //Find log number
   var lastTestNo = this.getNumberOfLast() || 0;
