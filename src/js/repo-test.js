@@ -45,6 +45,25 @@ RepoTests.prototype.getFileNames = function getFileNames() {
 };
 
 /**
+ * Loads a log object from a file.
+ * @method getLogFromFile
+ * @param  {String} fileName Name of test file to be read
+ * @return {Promise}          Will resolve into a log object or rejected
+ */
+RepoTests.prototype.getLogFromFile = function getLogFromFile(fileName) {
+  if (!fileName) { return Promise.reject(null); }
+
+  var logsFolder = this.repo.logsFolder;
+  var testPath = path.format({ dir: logsFolder, base: fileName });
+
+  return utils.readFile(testPath)
+  .then(function (jsonString) {
+    return JSON.stringify(jsonString);
+  })
+  .catch(function () { return null; });
+};
+
+/**
  * Gets last test's content.
  * @method lastLog
  * @return {Promise} Resoves to String if there is a test and to null otherwise.
@@ -54,33 +73,25 @@ RepoTests.prototype.getLastLog = function getLastLog() {
   var testFileNames = this.getFileNames();
   var lastTest = testFileNames.pop();
 
-  if (lastTest) {
-    var logsFolder = this.repo.logsFolder;
-    var testPath = path.format({ dir: logsFolder, base: lastTest });
-    return utils.readFile(testPath);
-  } else {
-    return Promise.resolve(null);
-  }
+  return this.getLogFromFile(lastTest);
 };
 
 /**
- * Returns an Array of Strings containing test logs chronologically ordered.
+ * Returns a Promise to be resolved into an Array of Strings containing
+ * test logs chronologically ordered.
  * @method allLogs
- * @return {Array[String]}
+ * @return {Promise} Which will be resolved in an Array[String].
  */
 RepoTests.prototype.getAllLogs = function getAllLogs() {
   console.log('Loading all test logs for ' + this.repo.name);
   var testFileNames = this.getFileNames();
-  var logsFolder = this.repo.logsFolder;
   var testLogs = [];
-  var testPath;
 
-  for (var i = 0; i < testFileNames.length; i++) {
-    testPath = path.format({ dir: logsFolder, base: testFileNames[i] });
-    testLogs[i] = utils.readFileSync(testPath);
-  }
+  testFileNames.forEach(function (fileName, i) {
+    testLogs[i] = this.getLogFromFile(fileName);
+  });
 
-  return testLogs;
+  return Promise.all(testLogs);
 };
 
 // RUNNING TESTS //

@@ -23,6 +23,7 @@ module.exports = (function utils() {
     };
   }());
 
+  // TODO: Make readfile functions return null if an error happens
   function readFile(fileName) {
     return new Promise(function (resolve, reject) {
       fs.readFile(fileName, function (err, data) {
