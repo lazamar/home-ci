@@ -44,7 +44,7 @@ function Repository(username, repoName, repositoriesPath) {
     return passingTests;
   };
 
-  this.passedTest = function passedTests(bool) {
+  this.passedTest = function _passedTests(bool) {
     if (bool !== true && bool !== false) {
       throw new Error('Repository.passedTest(): Parameter bust be boolean.');
     }
@@ -207,35 +207,44 @@ Repository.prototype.deleteFiles = function () {
  */
 Repository.prototype.test = function test() {
   var _this = this;
-  var installResponse;
-  var testResponse;
+  var output = '';
+  var exitStatus = 0;
 
   return _this.clone()
-    .then(function () {
+    .then(function (res) {
+      output += '\n' + res.output;
+      exitStatus += res.exitStatus;
+      if (exitStatus > 0) { return Promise.reject(); }
+
       return _this.install();
     })
-   .then(function (res) {
-     if (!res) { return null; }
+    .then(function (res) {
+      output += '\n' + res.output;
+      exitStatus += res.exitStatus;
+      if (exitStatus > 0) { return Promise.reject(); }
 
-     installResponse = res;
-     return (installResponse.exitStatus === 0) ? _this.tests.run() : null;
-   })
-  .then(function (res) {
-    if (!installResponse) { return null; } // Program error in install
+      return _this.tests.run();
+    })
+    .then(function (res) {
+      output += '\n' + res.output;
+      exitStatus += res.exitStatus;
+      if (exitStatus > 0) { return Promise.reject(); }
 
-    testResponse = res;
-    var output = installResponse.output;
-    output += (testResponse) ? '\n' + testResponse.output : '';
-    var exitStatus = (testResponse) ? testResponse.exitStatus : installResponse.exitStatus;
+      return Promise.resolve();
+    })
+    .catch(function (err) {
+      output += '\n:: ERROR ::\n' + (err || '');
+      exitStatus = exitStatus || 1;
+    })
+    .finally(function () {
+      // save log
+      var log = _this.tests.saveTest(output, exitStatus);
 
-    // save log
-    var log = _this.tests.saveTest(output, exitStatus);
+      // Now we delete all files downloaded from Github
+      _this.deleteFiles();
 
-    // Now we delete all files downloaded from Github
-    _this.deleteFiles();
-
-    return log;
-  });
+      return log;
+    });
 };
 
 module.exports = Repository;
