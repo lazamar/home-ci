@@ -1,5 +1,5 @@
 var utils = require('./utils');
-var Promise = require('promise'); //jshint ignore: line
+var Promise = require('promise');
 var Repositories = require('./repositories');
 
 /**
@@ -10,13 +10,13 @@ function Controller() {
     return new Controller();
   }
 
-  //Constants
+  // Constants
   const PROJECT_ROOT = utils.joinPath(__dirname, '..', '..');
   const REPOSITORIES_PATH = utils.joinPath(PROJECT_ROOT, 'repositories/');
   const AUTHORISED_USERS = [
     'lazamar',
     'fourlabsldn',
-    'foaly-nr1'
+    'foaly-nr1',
   ];
 
   var repositories = new Repositories(REPOSITORIES_PATH);
@@ -136,6 +136,8 @@ function Controller() {
       return status;
     });
   };
+
+  return this;
 }
 
 module.exports = Controller;
