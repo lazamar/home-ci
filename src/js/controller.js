@@ -106,6 +106,26 @@ function Controller() {
       }
     });
   };
+
+  this.getStatusObject = function getStatusObject(user, repoName) {
+    var err = validateUserAndRepo(user, repoName);
+    if (err) { return Promise.reject(err); }
+
+    repositories.get(user, repoName)
+    .then(function (repo) {
+      if (typeof repo !== 'object') {
+        throw new Error('Invalid Object returned by Repositories.get()');
+      }
+
+      var status = {
+        state: repo.getState(),
+        success: repo.isPassingTests(),
+      }
+
+      return status;
+    });
+
+  }
 }
 
 module.exports = Controller;
