@@ -49,7 +49,7 @@ function Controller() {
    */
   this.getRepoPage = function getRepoPage(user, repoName) {
     var repo;
-    var rawPage = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       var err = validateUserAndRepo(user, repoName);
       if (err) {
         reject(err);
@@ -63,7 +63,7 @@ function Controller() {
       }
 
       repo = repoFound;
-      if (!repo.isFree()) { return null; }
+      if (!repo.isFree()) { return Promise.reject('Busy'); }
 
       return repo.tests.getLastLog();
     })
@@ -71,24 +71,25 @@ function Controller() {
       if (!log) {
         // test log not found, so let's run a test and update the state.
         repo.test();
+        return 'Log not found'; // Remove this after loading client-side script has been done.
       }
 
       return log; // Return log for page to be constructed or null.
     })
     .catch(function (err) {
       console.error(err);
-      return { content: err, success: false };
-    });
+      return { output: err, success: false };
+    })
 
     // Now we just build the page and return it
-    return rawPage.then(function (retrievedLog) {
+    .then(function (retrievedLog) {
       var log = retrievedLog || {};
       return utils.buildTemplate({
         username: user,
         repo: repoName,
-        code: '',
-        content: log.output,
-        success: log.success,
+        script: '',
+        content: log.output || '',
+        success: !!log.success,
         state: repo ? repo.getState() : null,
       });
     });

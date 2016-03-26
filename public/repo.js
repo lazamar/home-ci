@@ -1,10 +1,10 @@
-//This will be sent by the server
-var STATUS = {
-  success: true,
-
-  //Possible values: ['cloning', 'installing', 'pulling', 'testing', 'free'],
-  availability: 'free',
-};
+// //This will be sent by the server
+// var STATUS = {
+//   success: true,
+//
+//   //Possible values: ['cloning', 'installing', 'pulling', 'testing', 'free'],
+//   state: 'free',
+// };
 
 (function (stats) {
   'use strict';
@@ -13,7 +13,7 @@ var STATUS = {
   var dividingBar = document.querySelector('.dividing-bar');
   if (!statusIcon || !dividingBar) {
     console.error('No status icon or loading bar found.');
-  } else if (stats.availability !== 'free') {
+  } else if (stats.state !== 'free') {
     statusIcon.classList.add('fa-cog');
     statusIcon.classList.add('spinning');
     statusIcon.classList.add('warning-yellow');
@@ -26,5 +26,4 @@ var STATUS = {
     statusIcon.classList.add('fail-red');
     dividingBar.classList.add('failure');
   }
-
 }(STATUS));

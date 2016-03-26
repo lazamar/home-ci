@@ -52,14 +52,14 @@ RepoTests.prototype.getFileNames = function getFileNames() {
  * @return {Promise}          Will resolve into a log object or rejected
  */
 RepoTests.prototype.getLogFromFile = function getLogFromFile(fileName) {
-  if (!fileName) { return Promise.reject(null); }
+  if (!fileName) { return Promise.resolve(null); }
 
   var logsFolder = this.repo.logsFolder;
   var testPath = path.format({ dir: logsFolder, base: fileName });
 
   return utils.readFile(testPath)
   .then(function (jsonString) {
-    return JSON.stringify(jsonString);
+    return JSON.parse(jsonString);
   })
   .catch(function () { return null; });
 };
@@ -152,7 +152,7 @@ RepoTests.prototype.saveTest = function saveTest(content, exitStatus) {
 
   // Write log to file
   var logsFolder = this.repo.logsFolder;
-  var testName = 'test-' + newTestNo + '.log';
+  var testName = 'test-' + newTestNo + '.json';
   var fullPath = path.format({ dir: logsFolder, base: testName });
 
   utils.writeFile(fullPath, log);

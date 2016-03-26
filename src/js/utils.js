@@ -1,13 +1,11 @@
 var fs = require('fs');
 var mkdirp = require('mkdirp');
-var Promise = require('promise'); //jshint ignore:line
-var ansi_up = require('ansi_up'); //ANSI to coloured HTML
+var Promise = require('promise');
+var ansiUp = require('ansi_up'); // ANSI to coloured HTML
 var rimraf = require('rimraf');
 var Path = require('path');
 
 module.exports = (function utils() {
-  'use strict';
-
   var parse = (function () {
     var validateRegex = /^(\/)([\w-]+)(?:(\/)([\w-]+))?/;
     return {
@@ -26,7 +24,7 @@ module.exports = (function utils() {
   // TODO: Make readfile functions return null if an error happens
   function readFile(fileName) {
     return new Promise(function (resolve, reject) {
-      fs.readFile(fileName, function (err, data) {
+      fs.readFile(fileName, 'utf8', function (err, data) {
         if (err) {
           reject('File not found:' + fileName);
         } else {
@@ -60,7 +58,7 @@ module.exports = (function utils() {
 
   function terminalToHTML(text) {
     var withLineBreaks = text.replace(/\n/g, '\n<br/> ');
-    return ansi_up.ansi_to_html(withLineBreaks);
+    return ansiUp.ansi_to_html(withLineBreaks);
   }
 
   var ansi = {
@@ -68,7 +66,7 @@ module.exports = (function utils() {
     red: '\x1B[31m',
     yellow: '\x1B[33m',
     blue: '\x1b[34m',
-    none: '\x1B[0m'
+    none: '\x1B[0m',
   };
 
   function ansiColorise(color, str) {
@@ -96,11 +94,12 @@ module.exports = (function utils() {
     try {
       if (what === 'file') {
         return fs.statSync(path).isFile();
-      } else if (what === 'directory') {
-        return fs.statSync(path).isDirectory();
-      } else {
-        throw new Error('Unexpected parameter value in utils.checkExistsSync.');
       }
+      if (what === 'directory') {
+        return fs.statSync(path).isDirectory();
+      }
+
+      throw new Error('Unexpected parameter value in utils.checkExistsSync.');
     } catch (e) {
       // no such file or directory. File really does not exist
       if (e.code === 'ENOENT') { return false; }
@@ -154,27 +153,35 @@ module.exports = (function utils() {
           return 'Error building Template \n';
         }
 
-        template = template.toString();
-        template = template.replace('$$REPO$$', fields.repo);
-        template = template.replace('$$USERNAME$$', fields.username);
-        template = template.replace('$$CONTENT$$', fields.content);
-        template = template.replace('$$SCRIPT$$', fields.script);
+        var statusObj = {
+          success: fields.success,
+          state: fields.state,
+        };
+        var script = 'var STATUS = ' + JSON.stringify(statusObj);
+        script += '\n' + (fields.script || '');
+
+        template = template.toString();                                         // eslint-disable-line no-param-reassign, max-len
+        template = template.replace('$$REPO$$', fields.repo);                   // eslint-disable-line no-param-reassign, max-len
+        template = template.replace('$$USERNAME$$', fields.username);           // eslint-disable-line no-param-reassign, max-len
+        template = template.replace('$$CONTENT$$', fields.content);             // eslint-disable-line no-param-reassign, max-len
+        template = template.replace('$$SCRIPT$$', script);                      // eslint-disable-line no-param-reassign, max-len
+
         return template;
       });
   }
 
-  //get number of files like test10.log and test11.log
+  // get number of files like test10.log and test11.log
   function getFileNumber(fileName) {
     if (!fileName) { return null; }
 
     var match = fileName.match(/([0-9]+)\.[^0-9]+$/) || [];
-    var fileNo = parseInt(match[1]);
+    var fileNo = parseInt(match[1], 10);
     return fileNo || null;
   }
 
-  //Compares names like test10.log and test11.log
+  // Compares names like test10.log and test11.log
   function compareFileNames(f1, f2) {
-    //Make number an int or NaN if no number was matched.
+    // Make number an int or NaN if no number was matched.
     var f1No = getFileNumber(f1);
     var f2No = getFileNumber(f2);
 

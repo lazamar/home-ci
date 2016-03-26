@@ -206,6 +206,8 @@ Repository.prototype.deleteFiles = function () {
  *                        	log or an error message.
  */
 Repository.prototype.test = function test() {
+  if (!this.isFree()) { return Promise.resolve('Busy'); }
+
   var _this = this;
   var output = '';
   var exitStatus = 0;
@@ -214,21 +216,21 @@ Repository.prototype.test = function test() {
     .then(function (res) {
       output += '\n' + res.output;
       exitStatus += res.exitStatus;
-      if (exitStatus > 0) { return Promise.reject(); }
+      if (exitStatus > 0) { return Promise.reject(res.output); }
 
       return _this.install();
     })
     .then(function (res) {
       output += '\n' + res.output;
       exitStatus += res.exitStatus;
-      if (exitStatus > 0) { return Promise.reject(); }
+      if (exitStatus > 0) { return Promise.reject(res.output); }
 
       return _this.tests.run();
     })
     .then(function (res) {
       output += '\n' + res.output;
       exitStatus += res.exitStatus;
-      if (exitStatus > 0) { return Promise.reject(); }
+      if (exitStatus > 0) { return Promise.reject(res.output); }
 
       return Promise.resolve();
     })
