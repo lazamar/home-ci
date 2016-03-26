@@ -48,18 +48,15 @@ function Controller() {
    * @return {Promise}          Resolves to a string with the repo's HTML page.
    */
   this.getRepoPage = function getRepoPage(user, repoName) {
-    var validationError = validateUserAndRepo(user, repoName);
-    if (validationError) {
-      return utils.buildTemplate({
-        username: user,
-        repo: repoName,
-        content: validationError,
-        success: false,
-      });
-    }
-
     var repo;
-    var rawPage = repositories.get(user, repoName)
+    var rawPage = new Promise(function (resolve, reject) {
+      var err = validateUserAndRepo(user, repoName);
+      if (err) {
+        reject(err);
+      } else {
+        resolve(repositories.get(user, repoName));
+      }
+    })
     .then(function (repoFound) {
       if (typeof repoFound !== 'object') {
         throw new Error('Invalid Object returned by Repositories.get()');
