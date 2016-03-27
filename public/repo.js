@@ -40,16 +40,12 @@
     }, wait);
   }
 
-  function setSuccess(statusIcon, dividingBar) {
-    statusIcon.classList.add('fa-check-square');
-    statusIcon.classList.add('success-green');
-    dividingBar.classList.add('success');
+  function setSuccess() {
+    document.body.classList.add('success');
   }
 
-  function setFailure(statusIcon, dividingBar) {
-    statusIcon.classList.add('fa-minus-square');
-    statusIcon.classList.add('fail-red');
-    dividingBar.classList.add('failure');
+  function setFailure() {
+    document.body.classList.add('failure');
   }
 
   function setStateMessage(message) {
@@ -61,10 +57,8 @@
     stateMessageContainer.innerText = message;
   }
 
-  function setWorking(statusIcon, statusObj) {
-    statusIcon.classList.add('fa-cog');
-    statusIcon.classList.add('spinning');
-    statusIcon.classList.add('warning-yellow');
+  function setWorking(statusObj) {
+    document.body.classList.add('working');
 
     var hostUrl = location.origin;
     var userAndRepo = location.pathname;
@@ -75,17 +69,12 @@
   }
 
   function processStatus(statusObj) {
-    var statusIcon = document.querySelector('.status-icon');
-    var dividingBar = document.querySelector('.dividing-bar');
-
-    if (!statusIcon || !dividingBar) {
-      console.error('No status icon, status message or loading bar found.');
-    } else if (!statusObj || statusObj.state !== 'free') {
-      setWorking(statusIcon, statusObj);
+    if (!statusObj || statusObj.state !== 'free') {
+      setWorking(statusObj);
     } else if (statusObj.success) {
-      setSuccess(statusIcon, dividingBar);
+      setSuccess();
     } else {
-      setFailure(statusIcon, dividingBar);
+      setFailure();
     }
   }
 

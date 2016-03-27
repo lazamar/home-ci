@@ -322,7 +322,7 @@ a, a:visited {
 .fa-signal:before {
   content: "\f012"; }
 
-.fa-gear:before, .fa-cog:before {
+.fa-gear:before, .fa-cog:before, .working .status-icon:before {
   content: "\f013"; }
 
 .fa-trash-o:before {
@@ -1144,7 +1144,7 @@ a, a:visited {
 .fa-ticket:before {
   content: "\f145"; }
 
-.fa-minus-square:before {
+.fa-minus-square:before, .failure .status-icon:before {
   content: "\f146"; }
 
 .fa-minus-square-o:before {
@@ -1156,7 +1156,7 @@ a, a:visited {
 .fa-level-down:before {
   content: "\f149"; }
 
-.fa-check-square:before {
+.fa-check-square:before, .success .status-icon:before {
   content: "\f14a"; }
 
 .fa-pencil-square:before {
@@ -2083,58 +2083,45 @@ a, a:visited {
 .fa-percent:before {
   content: "\f295"; }
 
-.success-green {
-  color: #009688; }
+.spinning, .working .status-icon {
+  -webkit-animation-name: spin;
+  -webkit-animation-duration: 4000ms;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  -moz-animation-name: spin;
+  -moz-animation-duration: 4000ms;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-timing-function: linear;
+  -ms-animation-name: spin;
+  -ms-animation-duration: 4000ms;
+  -ms-animation-iteration-count: infinite;
+  -ms-animation-timing-function: linear;
+  animation-name: spin;
+  animation-duration: 4000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear; }
 
-.fail-red {
-  color: #da4733; }
-
-.warning-yellow {
-  color: #fdba2c; }
-
-.dividing-bar hr {
-  height: 6px;
-  display: none; }
-
-.main-title {
-  color: #009688;
-  font-size: 100px;
-  font-family: LatoWebHeavy;
-  text-align: center; }
-  .main-title a:visited,
-  .main-title a:hover,
-  .main-title a:active,
-  .main-title a {
-    text-decoration: none;
-    color: #009688; }
-  .main-title img {
-    height: 1.2em;
-    display: inline-block;
-    position: relative;
-    bottom: -20px; }
-
-.dividing-bar.success .load-bar, .dividing-bar.success .status-message {
-  display: none; }
-.dividing-bar.success hr {
-  display: block;
-  background-color: #009688; }
-
-.dividing-bar.failure .load-bar, .dividing-bar.failure .status-message {
-  display: none; }
-.dividing-bar.failure hr {
-  display: block;
-  background-color: #da4733; }
-
-.status-message {
-  text-align: center;
-  background-color: #f8f8f8;
-  color: #777777;
-  padding: 10px;
-  border-radius: 0 0 3px 3px;
-  /* margin-top: 15px; */
-  border: 1px solid #CCCCCC; }
-
-/*Loading bar*/
+@-ms-keyframes spin {
+  from {
+    -ms-transform: rotate(0deg); }
+  to {
+    -ms-transform: rotate(360deg); } }
+@-moz-keyframes spin {
+  from {
+    -moz-transform: rotate(0deg); }
+  to {
+    -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg); }
+  to {
+    -webkit-transform: rotate(360deg); } }
+@keyframes spin {
+  from {
+    transform: rotate(0deg); }
+  to {
+    transform: rotate(360deg); } }
+/* Loading bar */
 .load-bar {
   position: relative;
   margin-top: 20px;
@@ -2175,43 +2162,52 @@ a, a:visited {
   to {
     left: 0;
     width: 100%; } }
-.spinning {
-  -webkit-animation-name: spin;
-  -webkit-animation-duration: 4000ms;
-  -webkit-animation-iteration-count: infinite;
-  -webkit-animation-timing-function: linear;
-  -moz-animation-name: spin;
-  -moz-animation-duration: 4000ms;
-  -moz-animation-iteration-count: infinite;
-  -moz-animation-timing-function: linear;
-  -ms-animation-name: spin;
-  -ms-animation-duration: 4000ms;
-  -ms-animation-iteration-count: infinite;
-  -ms-animation-timing-function: linear;
-  animation-name: spin;
-  animation-duration: 4000ms;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear; }
+.main-title {
+  color: #009688;
+  font-size: 100px;
+  font-family: LatoWebHeavy;
+  text-align: center; }
+  .main-title a:visited,
+  .main-title a:hover,
+  .main-title a:active,
+  .main-title a {
+    text-decoration: none;
+    color: #009688; }
+  .main-title img {
+    height: 1.2em;
+    display: inline-block;
+    position: relative;
+    bottom: -20px; }
 
-@-ms-keyframes spin {
-  from {
-    -ms-transform: rotate(0deg); }
-  to {
-    -ms-transform: rotate(360deg); } }
-@-moz-keyframes spin {
-  from {
-    -moz-transform: rotate(0deg); }
-  to {
-    -moz-transform: rotate(360deg); } }
-@-webkit-keyframes spin {
-  from {
-    -webkit-transform: rotate(0deg); }
-  to {
-    -webkit-transform: rotate(360deg); } }
-@keyframes spin {
-  from {
-    transform: rotate(0deg); }
-  to {
-    transform: rotate(360deg); } }
+.dividing-bar hr {
+  height: 6px;
+  display: none; }
+
+.status-message {
+  text-align: center;
+  background-color: #f8f8f8;
+  color: #777777;
+  padding: 10px;
+  border-radius: 0 0 3px 3px;
+  /* margin-top: 15px; */
+  border: 1px solid #CCCCCC; }
+
+.success .load-bar, .success .status-message, .failure .load-bar, .failure .status-message {
+  display: none; }
+.success hr, .failure hr {
+  display: block; }
+
+.success .status-icon {
+  color: #009688; }
+.success hr {
+  background-color: #009688; }
+
+.failure .status-icon {
+  color: #da4733; }
+.failure hr {
+  background-color: #da4733; }
+
+.working .status-icon {
+  color: #fdba2c; }
 
 /*# sourceMappingURL=main.css.map */

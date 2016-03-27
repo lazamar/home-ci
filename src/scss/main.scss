@@ -1,30 +1,13 @@
-@import '_theme.scss';
-@import '_latofonts.scss';
-@import '_font-awesome.min';
 
 $green  : #009688;
 $red    : #da4733;
 $yellow : #fdba2c;
 $blue   : #3b78e7;
 
-.success-green {
-  color: $green;
-}
-
-.fail-red {
-  color: $red;
-}
-
-.warning-yellow {
-  color: $yellow;
-}
-
-.dividing-bar {
-  hr {
-    height: 6px;
-    display: none;
-  }
-}
+@import '_theme';
+@import '_latofonts';
+@import '_font-awesome.min';
+@import '_animations';
 
 .main-title {
   color: $green;
@@ -47,23 +30,11 @@ $blue   : #3b78e7;
     bottom: -20px;
   }
 }
-.dividing-bar.success {
-  .load-bar, .status-message {
-    display: none;
-  }
-  hr {
-    display: block;
-    background-color: $green;
-  }
-}
 
-.dividing-bar.failure {
-  .load-bar, .status-message {
-    display: none;
-  }
+.dividing-bar {
   hr {
-    display: block;
-    background-color: $red;
+    height: 6px;
+    display: none;
   }
 }
 
@@ -77,79 +48,39 @@ $blue   : #3b78e7;
   border: 1px solid #CCCCCC;
 }
 
-/*Loading bar*/
-.load-bar {
-  position: relative;
-  margin-top: 20px;
-  width: 100%;
-  height: 6px;
-  background-color: $yellow;
-}
-.bar {
-  content: "";
-  display: inline;
-  position: absolute;
-  width: 0;
-  height: 100%;
-  left: 50%;
-  text-align: center;
-}
-.bar:nth-child(1) {
-  background-color: $red;
-  animation: loading 3s linear infinite;
-}
-.bar:nth-child(2) {
-  background-color: $blue;
-  animation: loading 3s linear 1s infinite;
-}
-.bar:nth-child(3) {
-  background-color: #fdba2c;
-  animation: loading 3s linear 2s infinite;
-}
-@keyframes loading {
-    from {left: 50%; width: 0;z-index:100;}
-    33.3333% {left: 0; width: 100%;z-index: 10;}
-    to {left: 0; width: 100%;}
+.success, .failure {
+  .load-bar, .status-message {
+    display: none;
+  }
+  hr {
+    display: block;
+  }
 }
 
-// Spinning animation
-.spinning {
-    -webkit-animation-name: spin;
-    -webkit-animation-duration: 4000ms;
-    -webkit-animation-iteration-count: infinite;
-    -webkit-animation-timing-function: linear;
-    -moz-animation-name: spin;
-    -moz-animation-duration: 4000ms;
-    -moz-animation-iteration-count: infinite;
-    -moz-animation-timing-function: linear;
-    -ms-animation-name: spin;
-    -ms-animation-duration: 4000ms;
-    -ms-animation-iteration-count: infinite;
-    -ms-animation-timing-function: linear;
-
-    animation-name: spin;
-    animation-duration: 4000ms;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
+.success {
+  .status-icon {
+    @extend .fa-check-square;
+    color: $green;
+  }
+  hr {
+    background-color: $green;
+  }
 }
 
-@-ms-keyframes spin {
-    from { -ms-transform: rotate(0deg); }
-    to { -ms-transform: rotate(360deg); }
+.failure {
+  .status-icon {
+    @extend .fa-minus-square;
+    color: $red;
+  }
+  hr {
+    background-color: $red;
+  }
 }
-@-moz-keyframes spin {
-    from { -moz-transform: rotate(0deg); }
-    to { -moz-transform: rotate(360deg); }
-}
-@-webkit-keyframes spin {
-    from { -webkit-transform: rotate(0deg); }
-    to { -webkit-transform: rotate(360deg); }
-}
-@keyframes spin {
-    from {
-        transform:rotate(0deg);
-    }
-    to {
-        transform:rotate(360deg);
-    }
+
+.working {
+  .status-icon {
+    @extend .fa-cog;
+    @extend .spinning;
+    color: $yellow;
+  }
 }
