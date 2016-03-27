@@ -1,10 +1,10 @@
-// This will be sent by the server
-var STATUS = {
-  success: true,
-
-  // Possible values: ['cloning', 'installing', 'pulling', 'testing', 'free'],
-  state: 'cloning',
-};
+// // This will be sent by the server
+// var STATUS = {
+//   success: true,
+//
+//   // Possible values: ['cloning', 'installing', 'pulling', 'testing', 'free'],
+//   state: 'cloning',
+// };
 
 function debounce(FuncDelay, callback) {
   var delay = FuncDelay;
