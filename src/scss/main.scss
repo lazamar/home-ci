@@ -48,7 +48,7 @@ $blue   : #3b78e7;
   }
 }
 .dividing-bar.success {
-  .load-bar {
+  .load-bar, .status-message {
     display: none;
   }
   hr {
@@ -58,13 +58,23 @@ $blue   : #3b78e7;
 }
 
 .dividing-bar.failure {
-  .load-bar {
+  .load-bar, .status-message {
     display: none;
   }
   hr {
     display: block;
     background-color: $red;
   }
+}
+
+.status-message {
+  text-align: center;
+  background-color: #f8f8f8;
+  color: #777777;
+  padding: 10px;
+  border-radius: 0 0 3px 3px;
+  /* margin-top: 15px; */
+  border: 1px solid #CCCCCC;
 }
 
 /*Loading bar*/

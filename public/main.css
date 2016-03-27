@@ -2113,17 +2113,26 @@ a, a:visited {
     position: relative;
     bottom: -20px; }
 
-.dividing-bar.success .load-bar {
+.dividing-bar.success .load-bar, .dividing-bar.success .status-message {
   display: none; }
 .dividing-bar.success hr {
   display: block;
   background-color: #009688; }
 
-.dividing-bar.failure .load-bar {
+.dividing-bar.failure .load-bar, .dividing-bar.failure .status-message {
   display: none; }
 .dividing-bar.failure hr {
   display: block;
   background-color: #da4733; }
+
+.status-message {
+  text-align: center;
+  background-color: #f8f8f8;
+  color: #777777;
+  padding: 10px;
+  border-radius: 0 0 3px 3px;
+  /* margin-top: 15px; */
+  border: 1px solid #CCCCCC; }
 
 /*Loading bar*/
 .load-bar {
