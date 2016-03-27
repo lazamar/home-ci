@@ -6,39 +6,61 @@ var STATUS = {
   state: 'cloning',
 };
 
+function debounce(FuncDelay, callback) {
+  var delay = FuncDelay;
+  var params;
+  var context = this;
+  var timeoutObj;
+
+  function timeoutFunc() {
+    if (timeoutObj) {
+      clearTimeout(timeoutObj);
+    }
+    callback.apply(context, params); // Call function with latest parameters
+  }
+  return function () {
+    params = arguments;
+    if (timeoutObj) {
+      clearTimeout(timeoutObj);
+    }
+    timeoutObj = setTimeout(timeoutFunc, delay);
+
+    // Now we return a function that allows the user to call the
+    // method immediately and cancel any timeouts.
+    // use it like myDebouncedFunc(arg1, arg2)("now!");
+    return function (now) {
+      if (now) {
+        timeoutFunc();
+      }
+    };
+  };
+}
+
 (function (pageStatus) {
   'use strict'; // eslint-disable-line strict
 
-
   var MIN_WAIT = 5000;
-  var lastUpdateTime = Date.now();
   function updateStatus(updateUrl) {
     console.log('Updating status...');
-    var currTime = Date.now();
-    var timeDiff = currTime - lastUpdateTime;
+    fetch(updateUrl)
+    .then(function (res) {
+      return res.json();
+    })
+    .then(function (res) {
+      if (!res || !res.state) {
+        throw new Error('updateStatus(): ' +
+          'Invalid update object returned from the server: ' + res);
+      }
 
-    // Wait at least MIN_WAIT time;
-    var wait = Math.max(MIN_WAIT - timeDiff, 0);
-    lastUpdateTime = currTime;
-    setTimeout(function () {
-      fetch(updateUrl)
-      .then(function (res) {
-        return res.json();
-      })
-      .then(function (res) {
-        if (!res || !res.state) {
-          throw new Error('updateStatus(): ' +
-            'Invalid update object returned from the server: ' + res);
-        }
-
-        processStatus(res); // eslint-disable-line no-use-before-define
-      })
-      .catch(function (err) {
-        console.error('Error in updateStatus()');
-        console.error(err);
-      });
-    }, wait);
+      processStatus(res); // eslint-disable-line no-use-before-define
+    })
+    .catch(function (err) {
+      console.error('Error in updateStatus()');
+      console.error(err);
+    });
   }
+
+  var updateStatusDebounced = debounce(MIN_WAIT, updateStatus);
 
   function setSuccess() {
     document.body.className = 'success';
@@ -65,7 +87,7 @@ var STATUS = {
     var updateUrl = hostUrl + '/u' + userAndRepo;
 
     if (statusObj) { setStateMessage(statusObj.state); }
-    updateStatus(updateUrl);
+    updateStatusDebounced(updateUrl);
   }
 
   function processStatus(statusObj) {
