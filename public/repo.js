@@ -1,10 +1,10 @@
 // This will be sent by the server
-// var STATUS = {
-//   success: true,
-//
-//   // Possible values: ['cloning', 'installing', 'pulling', 'testing', 'free'],
-//   state: 'cloning',
-// };
+var STATUS = {
+  success: true,
+
+  // Possible values: ['cloning', 'installing', 'pulling', 'testing', 'free'],
+  state: 'cloning',
+};
 
 (function (pageStatus) {
   'use strict'; // eslint-disable-line strict
@@ -41,11 +41,11 @@
   }
 
   function setSuccess() {
-    document.body.classList.add('success');
+    document.body.className = 'success';
   }
 
   function setFailure() {
-    document.body.classList.add('failure');
+    document.body.className = 'failure';
   }
 
   function setStateMessage(message) {
@@ -58,7 +58,7 @@
   }
 
   function setWorking(statusObj) {
-    document.body.classList.add('working');
+    document.body.className = 'working';
 
     var hostUrl = location.origin;
     var userAndRepo = location.pathname;
