@@ -64,7 +64,7 @@ server.get(/^\/webhook\/[\w-.]{2,}\/[\w-.]+\/?/, function (request, response) {
 
 // "/u/username/repo" request types. Status update on a request.
 server.get(/^\/u\/[\w-.]{2,}\/[\w-.]+\/?/, function (request, response) {
-  var userRepoUrl = request.url.replace('/webhook', '');
+  var userRepoUrl = request.url.replace('/u', '');
   var user = utils.parse.user(userRepoUrl);
   var repoName = utils.parse.repository(userRepoUrl);
 
