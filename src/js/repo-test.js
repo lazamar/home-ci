@@ -70,7 +70,6 @@ RepoTests.prototype.getLogFromFile = function getLogFromFile(fileName) {
  * @return {Promise} Resoves to String if there is a test and to null otherwise.
  */
 RepoTests.prototype.getLastLog = function getLastLog() {
-  console.log('Getting last test for' + this.repo.name);
   var testFileNames = this.getFileNames();
   var lastTest = testFileNames.pop();
 
@@ -84,7 +83,6 @@ RepoTests.prototype.getLastLog = function getLastLog() {
  * @return {Promise} Which will be resolved in an Array[String].
  */
 RepoTests.prototype.getAllLogs = function getAllLogs() {
-  console.log('Loading all test logs for ' + this.repo.name);
   var testFileNames = this.getFileNames();
   var testLogs = [];
 
@@ -131,7 +129,8 @@ RepoTests.prototype.formatTestLog = function formatTestLog(content, exitStatus) 
   logObj.exitStatus = exitStatus;
   logObj.success = (exitStatus === 0);
 
-  var log = JSON.stringify(logObj);
+  // Stringify with 2 spaces padding.
+  var log = JSON.stringify(logObj, null, 2);
   return log;
 };
 
