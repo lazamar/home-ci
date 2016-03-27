@@ -105,12 +105,23 @@ RepoTests.prototype.run = function run() {
 
   var _this = this;
 
-  console.log('Running test for ' + this.repo.name);
-  return runner('npm', ['test'], this.repo.folder)
-    .catch(function (err) {
-      console.error('Error running test in ' + _this.repo.name + ': ' + err);
-    })
-    .finally(function () { _this.repo._setState('free'); });
+  return new Promise(function (resolve) {
+    console.log('Running test for ' + this.repo.name);
+    var process = runner('npm', ['test'], this.repo.folder);
+
+    process.on('message', function (msg) {
+      console.log('Testing: ' + msg);
+    });
+
+    process.on('exit', function (output, exitStatus) {
+      var res = { output: output, exitStatus: exitStatus };
+      resolve(res);
+    });
+  })
+  .catch(function (err) {
+    console.error('Error running test in ' + _this.repo.name + ': ' + err);
+  })
+  .finally(function () { _this.repo._setState('free'); });
 };
 
 /**

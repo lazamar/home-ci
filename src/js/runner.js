@@ -6,13 +6,18 @@ var childProcess = require('child_process');
 var spawn = childProcess.spawn;
 var utils = require('./utils');
 
+/**
+ *
+ * A messager object that listens to the events 'message' and 'exit'
+ * @class Messager
+ */
 function Messager() {
   if (!(this instanceof Messager)) {
     return new Messager();
   }
 
   var listeners = {};
-  var validEvents = ['message', 'complete'];
+  var validEvents = ['message', 'exit'];
   var output = '';
 
   function isValidEvent(event) {
@@ -41,21 +46,21 @@ function Messager() {
 
   function send(txt) {
     // For now show in the console everything that is being sent
-    console.log(txt);
+    // console.log(txt);
 
     output += txt;
     trigger('message', txt);
   }
 
-  function complete(exitStatus) {
-    trigger('complete', output, exitStatus);
+  function exit(exitStatus) {
+    trigger('exit', output, exitStatus);
   }
 
   this.send = send;
   this.on = on;
-  this.complete = complete;
+  this.exit = exit;
   // messager.on('message', function (msg) {});
-  // messager.on('complete', function (fullOutput, exitStatus) {});
+  // messager.on('exit', function (fullOutput, exitStatus) {});
   return this;
 }
 
@@ -82,7 +87,7 @@ module.exports = function runner(commandName, args, dir, timeoutTime) {
       ' Duration over ' + timeoutTime);
 
     messager.send(err);
-    messager.complete(exitStatus.error);
+    messager.exit(exitStatus.error);
   }, timeoutTime);
 
   // Append data to output String
@@ -101,7 +106,7 @@ module.exports = function runner(commandName, args, dir, timeoutTime) {
   // Return whatever we have
   proc.on('exit', function (code) {
     clearTimeout(timeout);
-    messager.complete(code);
+    messager.exit(code);
   });
 
   return messager;
