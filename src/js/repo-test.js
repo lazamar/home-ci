@@ -103,11 +103,11 @@ RepoTests.prototype.run = function run() {
   var stateSet = this.repo._setState('testing');
   if (!stateSet) { return Promise.reject('busy'); }
 
+  console.log('Running test for ' + this.repo.name);
   var _this = this;
 
   return new Promise(function (resolve) {
-    console.log('Running test for ' + this.repo.name);
-    var process = runner('npm', ['test'], this.repo.folder);
+    var process = runner('npm', ['test'], _this.repo.folder);
 
     process.on('message', function (msg) {
       console.log('Testing: ' + msg);

@@ -157,11 +157,22 @@ Repository.prototype.pull = function pull() {
   console.log('pulling \t' + repoName);
 
   var _this = this;
-  return runner('git', ['pull'], repoFolder)
-    .catch(function (err) {
-      console.error('Error pulling ' + _this.name + ': ' + err);
-    })
-    .finally(function () { _this._setState('free'); });
+  return new Promise(function (resolve) {
+    var process = runner('git', ['pull'], repoFolder);
+
+    process.on('message', function (msg) {
+      console.log('Pulling: ' + msg);
+    });
+
+    process.on('exit', function (output, exitStatus) {
+      var res = { output: output, exitStatus: exitStatus };
+      resolve(res);
+    });
+  })
+  .catch(function (err) {
+    console.error('Error pulling ' + _this.name + ': ' + err);
+  })
+  .finally(function () { _this._setState('free'); });
 };
 
 /**
@@ -183,14 +194,25 @@ Repository.prototype.install = function install() {
   var maxTime = 300000; // Five minutes
   var repoName = this.name;
   var repoFolder = this.folder;
+  console.log('installing \t' + repoName);
 
   var _this = this;
-  console.log('installing \t' + repoName);
-  return runner('npm', ['install'], repoFolder, maxTime)
-    .catch(function (err) {
-      console.error('Error installing ' + _this.name + ': ' + err);
-    })
-    .finally(function () { _this._setState('free'); });
+  return new Promise(function (resolve) {
+    var process = runner('npm', ['install'], repoFolder, maxTime);
+
+    process.on('message', function (msg) {
+      console.log('Installing: ' + msg);
+    });
+
+    process.on('exit', function (output, exitStatus) {
+      var res = { output: output, exitStatus: exitStatus };
+      resolve(res);
+    });
+  })
+  .catch(function (err) {
+    console.error('Error installing ' + _this.name + ': ' + err);
+  })
+  .finally(function () { _this._setState('free'); });
 };
 
 /**
@@ -247,7 +269,7 @@ Repository.prototype.test = function test() {
       var log = _this.tests.saveTest(output, exitStatus);
 
       // Now we delete all files downloaded from Github
-      _this.deleteFiles();
+      // _this.deleteFiles(); TODO: Uncomment this line
 
       return log;
     });
