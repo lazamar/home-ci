@@ -38,19 +38,6 @@ function Repository(username, repoName, repositoriesPath) {
   // Private variables
   var possibleStates = ['cloning', 'installing', 'pulling', 'testing', 'free'];
   var state = 'free';
-  var passingTests = false;
-
-  this.isPassingTests = function isPassingTests() {
-    return passingTests;
-  };
-
-  this.passedTest = function _passedTests(bool) {
-    if (bool !== true && bool !== false) {
-      throw new Error('Repository.passedTest(): Parameter bust be boolean.');
-    }
-
-    passingTests = bool;
-  };
 
   /**
    * The state will serve as a lock. Whenever a repository is in any stater
@@ -81,6 +68,23 @@ function Repository(username, repoName, repositoriesPath) {
 
   return this;
 }
+
+/**
+ * Whether the current repository is passing the tests or not.
+ * It returns a promise which will be resolved into a boolean value.
+ * If there are no tests the result will be false
+ * @method isPassingTests
+ * @return {Promise[Boolean]}
+ */
+Repository.prototype.isPassingTests = function isPassingTests() {
+  return this.tests.getLastLog()
+  .then(function (passing) {
+    if (passing) {
+      return true;
+    }
+    return false;
+  });
+};
 
 Repository.prototype.isFree = function isFree() {
   console.log('get state: ' + this.getState());

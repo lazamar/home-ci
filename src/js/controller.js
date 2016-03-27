@@ -120,15 +120,20 @@ function Controller() {
     var err = validateUserAndRepo(user, repoName);
     if (err) { return Promise.reject(err); }
 
+    var repo;
     return repositories.get(user, repoName)
-    .then(function (repo) {
+    .then(function (repoRetrieved) {
+      repo = repoRetrieved;
       if (typeof repo !== 'object') {
         throw new Error('Invalid Object returned by Repositories.get()');
       }
 
+      return repo.isPassingTests();
+    })
+    .then(function (passingTests) {
       var status = {
         state: repo.getState(),
-        success: repo.isPassingTests(),
+        success: passingTests,
       };
 
       return status;
