@@ -1,3 +1,5 @@
+var Promise = require('promise');
+
 /**
  * A messager object that emmits events 'message' and 'exit'
  * It also has a 'promise' property, which contains a promise
@@ -52,9 +54,8 @@ module.exports = function Messager() {
     trigger('exit', output, exitStatus);
   }
 
-  var _this = this;
   this.promise = new Promise(function (resolve) {
-    _this.on('exit', function (exitStatus) {
+    on('exit', function (exitStatus) {
       var res = { exitStatus: exitStatus, output: output };
       resolve(res);
     });
