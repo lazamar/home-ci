@@ -114,7 +114,9 @@ RepoTests.prototype.run = function run() {
   var _this = this;
   return process.promise
     .catch(function (err) {
-      console.error('Error running test in ' + _this.repo.name + ': ' + err);
+      var output = 'Error running test in ' + _this.repo.name + ': ' + err;
+      console.error(output);
+      return { output: output, exitStatus: 1 };
     })
     .finally(function () { _this.repo._setState('free'); });
 };

@@ -206,7 +206,8 @@ Repository.prototype.install = function install() {
   var _this = this;
   return process.promise
     .catch(function (err) {
-      console.error('Error installing ' + _this.name + ': ' + err);
+      var output = 'Error installing ' + _this.name + ': ' + err;
+      return { output: output, exitStatus: 1 };
     })
     .finally(function () { _this._setState('free'); });
 };
@@ -258,7 +259,7 @@ Repository.prototype.test = function test() {
     })
     .catch(function (err) {
       output += '\n:: ERROR ::\n' + (err || '');
-      exitStatus = exitStatus || 1;
+      exitStatus = 1;
     })
     .finally(function () {
       // save log

@@ -55,8 +55,8 @@ module.exports = function Messager() {
   }
 
   this.promise = new Promise(function (resolve) {
-    on('exit', function (exitStatus) {
-      var res = { exitStatus: exitStatus, output: output };
+    on('exit', function (out, exitStatus) {
+      var res = { exitStatus: exitStatus, output: out };
       resolve(res);
     });
   });
