@@ -188,7 +188,7 @@ Repository.prototype.test = function test() {
   var exitStatus = 0;
 
   // Prepare liveLog for action
-  this.tests.liveLog._clear();
+  this.tests.liveLog._clear(); // TODO: Move all reporting to liveLog to here
 
   var _this = this;
   return _this.clone()
@@ -222,7 +222,7 @@ Repository.prototype.test = function test() {
       // save log
       var log = _this.tests.saveTest(output, exitStatus);
       // Now we delete all files downloaded from Github
-      _this.deleteFiles();
+      // _this.deleteFiles(); TODO: Uncomment this line
 
       return log;
     });

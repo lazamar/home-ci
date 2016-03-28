@@ -1,3 +1,5 @@
+var utils = require('./utils');
+
 // This is under repo.tests.livelog
 module.exports = function LiveLog() {
   if (!(this instanceof LiveLog)) {
@@ -23,7 +25,7 @@ module.exports = function LiveLog() {
 
   this._addLine = function _addLine(txt) {
     console.log('line ' + logArray.length + ':' + txt);
-    logArray.push(txt);
+    logArray.push(utils.terminalToHTML(txt));
   };
 
   return this;
