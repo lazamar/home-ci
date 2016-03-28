@@ -39,7 +39,7 @@ function debounce(FuncDelay, callback) {
 (function (pageStatus) {
   'use strict'; // eslint-disable-line strict
 
-  var MIN_WAIT = 5000;
+  var MIN_WAIT = 1000;
   function updateStatus(updateUrl) {
     console.log('Updating status...');
     fetch(updateUrl)
@@ -79,6 +79,13 @@ function debounce(FuncDelay, callback) {
     stateMessageContainer.innerText = message;
   }
 
+  function addLiveLog(liveLog) {
+    if (liveLog) {
+      var container = document.querySelector('.container');
+      container.innerHTML = liveLog.content;
+    }
+  }
+
   function setWorking(statusObj) {
     document.body.className = 'working';
 
@@ -86,11 +93,15 @@ function debounce(FuncDelay, callback) {
     var userAndRepo = location.pathname;
     var updateUrl = hostUrl + '/u' + userAndRepo;
 
-    if (statusObj) { setStateMessage(statusObj.state); }
+    if (statusObj) {
+      setStateMessage(statusObj.state);
+    }
     updateStatusDebounced(updateUrl);
   }
 
   function processStatus(statusObj) {
+    if (statusObj) { addLiveLog(statusObj.liveLog); }
+
     if (!statusObj || statusObj.state !== 'free') {
       setWorking(statusObj);
     } else if (statusObj.success) {
@@ -99,7 +110,6 @@ function debounce(FuncDelay, callback) {
       setFailure();
     }
   }
-
 
   processStatus(pageStatus);
 }(STATUS)); // eslint-disable-line no-undef

@@ -134,6 +134,7 @@ function Controller() {
       var status = {
         state: repo.getState(),
         success: passingTests,
+        liveLog: repo.tests.liveLog.get(),
       };
 
       return status;

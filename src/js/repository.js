@@ -222,7 +222,7 @@ Repository.prototype.test = function test() {
       // save log
       var log = _this.tests.saveTest(output, exitStatus);
       // Now we delete all files downloaded from Github
-      // _this.deleteFiles(); TODO: Uncomment this line
+      _this.deleteFiles();
 
       return log;
     });
