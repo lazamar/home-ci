@@ -17,6 +17,22 @@ function RepoTests(repo) {
   return this;
 }
 
+
+/**
+ * Whether the current repository is passing the tests or not.
+ * It returns a promise which will be resolved into a boolean value.
+ * If there are no tests the result will be false
+ * @method isPassing
+ * @return {Promise[Boolean]}
+ */
+RepoTests.prototype.isPassing = function isPassing() {
+  return this.getLastLog()
+  .then(function (log) {
+    if (!log) { return false; }
+    return log.success;
+  });
+};
+
 /**
  * If the file for the last test is test12.log, it returns 12.
  * @method getNumberOfLast

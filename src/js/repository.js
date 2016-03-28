@@ -69,21 +69,6 @@ function Repository(username, repoName, repositoriesPath) {
   return this;
 }
 
-/**
- * Whether the current repository is passing the tests or not.
- * It returns a promise which will be resolved into a boolean value.
- * If there are no tests the result will be false
- * @method isPassingTests
- * @return {Promise[Boolean]}
- */
-Repository.prototype.isPassingTests = function isPassingTests() {
-  return this.tests.getLastLog()
-  .then(function (log) {
-    if (!log) { return false; }
-    return log.success;
-  });
-};
-
 Repository.prototype.isFree = function isFree() {
   console.log('get state: ' + this.getState());
   return (this.getState() === 'free');

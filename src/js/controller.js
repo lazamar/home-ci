@@ -128,7 +128,7 @@ function Controller() {
         throw new Error('Invalid Object returned by Repositories.get()');
       }
 
-      return repo.isPassingTests();
+      return repo.tests.isPassing();
     })
     .then(function (passingTests) {
       var status = {
