@@ -1,8 +1,8 @@
 var utils = require('./utils');
 var runner = require('./runner');
+var LiveLog = require('./livelog');
 var path = require('path');
 var Promise = require('promise');
-
 // This is under Repository.tests
 /**
  * @class RepoTests
@@ -14,6 +14,7 @@ function RepoTests(repo) {
   }
 
   this.repo = repo;
+  this.liveLog = new LiveLog;
   return this;
 }
 
@@ -32,6 +33,10 @@ RepoTests.prototype.isPassing = function isPassing() {
     return log.success;
   });
 };
+
+// --------------------------------------------------------------
+//                    GETTING LOGS
+// --------------------------------------------------------------
 
 /**
  * If the file for the last test is test12.log, it returns 12.
@@ -110,7 +115,10 @@ RepoTests.prototype.getAllLogs = function getAllLogs() {
   return Promise.all(testLogs);
 };
 
-// RUNNING TESTS //
+// --------------------------------------------------------------
+//                    RUNNING TESTS
+// --------------------------------------------------------------
+
 /**
  * Will run npm test in the repository
  * @method run

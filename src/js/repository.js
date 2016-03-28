@@ -220,6 +220,9 @@ Repository.prototype.test = function test() {
   var output = '';
   var exitStatus = 0;
 
+  // Prepare liveLog for action
+  this.tests.liveLog._clear();
+
   return _this.clone()
     .then(function (res) {
       output += '\n' + res.output;
@@ -249,7 +252,6 @@ Repository.prototype.test = function test() {
     .finally(function () {
       // save log
       var log = _this.tests.saveTest(output, exitStatus);
-
       // Now we delete all files downloaded from Github
       // _this.deleteFiles(); TODO: Uncomment this line
 
