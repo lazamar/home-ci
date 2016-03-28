@@ -130,38 +130,6 @@ Repository.prototype.clone = function clone() {
 };
 
 /**
- * Pulls git repository
- * @method pull
- * @return {Promise} will be resolved in an object with output and exitStatus
- */
-Repository.prototype.pull = function pull() {
-  var stateSet = this._setState('pulling');
-  if (!stateSet) { return Promise.reject('busy'); }
-
-  var repoFolder = this.folder;
-  var repoName = this.name;
-  console.log('pulling \t' + repoName);
-
-  var _this = this;
-  return new Promise(function (resolve) {
-    var process = runner('git', ['pull'], repoFolder);
-
-    process.on('message', function (msg) {
-      console.log('Pulling: ' + msg);
-    });
-
-    process.on('exit', function (output, exitStatus) {
-      var res = { output: output, exitStatus: exitStatus };
-      resolve(res);
-    });
-  })
-  .catch(function (err) {
-    console.error('Error pulling ' + _this.name + ': ' + err);
-  })
-  .finally(function () { _this._setState('free'); });
-};
-
-/**
  * NOTE: The tests class use this method.
  * Run npm install
  * @method install
