@@ -110,37 +110,40 @@ Repository.prototype.isValidGithubRepo = function isValidGithubRepo() {
  * @return {Promise} will be resolved in an object with output and exitStatus
  */
 Repository.prototype.clone = function clone() {
-  var alreadyCloned = utils.dirExistsSync(this.folder);
-  if (alreadyCloned) { return Promise.resolve(); }
-
   var stateSet = this._setState('cloning');
   if (!stateSet) { return Promise.reject('busy'); }
 
-  // Variables for cloning
-  var cloneOptions = {
-    fetchOpts: {
-      callbacks: {
-        credentials: function () {
-          return NodeGit.Cred.userpassPlaintextNew(GITHUB_TOKEN, 'x-oauth-basic');
+  var cloning;
+  var alreadyCloned = utils.dirExistsSync(this.folder);
+  if (alreadyCloned) {
+    cloning = Promise.resolve();
+  } else {
+    // Variables for cloning
+    var cloneOptions = {
+      fetchOpts: {
+        callbacks: {
+          credentials: function () {
+            return NodeGit.Cred.userpassPlaintextNew(GITHUB_TOKEN, 'x-oauth-basic');
+          },
         },
       },
-    },
-  };
-  var cloneFolder = this.folder;
-  var url = this.githubUrl;
-  var _this = this;
-  var cloning = NodeGit.Clone(url, cloneFolder, cloneOptions) // eslint-disable-line
-    .then(function () {
-      return { exitStatus: 0, output: 'Cloned successfully.' };
-    })
-    .catch(function (err) {
-      console.error('Error cloning ' + _this.name + ': ' + err);
-      return { exitStatus: 1 };
-    })
-    .finally(function () { _this._setState('free'); });
+    };
+    var cloneFolder = this.folder;
+    var url = this.githubUrl;
+    cloning = NodeGit.Clone(url, cloneFolder, cloneOptions) // eslint-disable-line
+    console.log('cloning \t' + url);
+  }
 
-  console.log('cloning \t' + url);
-  return cloning;
+  var _this = this;
+  return cloning
+  .then(function () {
+    return { exitStatus: 0, output: 'Cloned successfully.' };
+  })
+  .catch(function (err) {
+    console.error('Error cloning ' + _this.name + ': ' + err);
+    return { exitStatus: 1 };
+  })
+  .finally(function () { _this._setState('free'); });
 };
 
 /**
@@ -196,23 +199,18 @@ Repository.prototype.install = function install() {
   var repoFolder = this.folder;
   console.log('installing \t' + repoName);
 
+  var process = runner('npm', ['install'], repoFolder, maxTime);
+
+  process.on('message', function (msg) {
+    console.log('Installing: ' + msg);
+  });
+
   var _this = this;
-  return new Promise(function (resolve) {
-    var process = runner('npm', ['install'], repoFolder, maxTime);
-
-    process.on('message', function (msg) {
-      console.log('Installing: ' + msg);
-    });
-
-    process.on('exit', function (output, exitStatus) {
-      var res = { output: output, exitStatus: exitStatus };
-      resolve(res);
-    });
-  })
-  .catch(function (err) {
-    console.error('Error installing ' + _this.name + ': ' + err);
-  })
-  .finally(function () { _this._setState('free'); });
+  return process.promise
+    .catch(function (err) {
+      console.error('Error installing ' + _this.name + ': ' + err);
+    })
+    .finally(function () { _this._setState('free'); });
 };
 
 /**

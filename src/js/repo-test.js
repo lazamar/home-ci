@@ -1,6 +1,7 @@
 var utils = require('./utils');
 var runner = require('./runner');
 var path = require('path');
+var Promise = require('promise');
 
 // This is under Repository.tests
 /**
@@ -102,26 +103,20 @@ RepoTests.prototype.getAllLogs = function getAllLogs() {
 RepoTests.prototype.run = function run() {
   var stateSet = this.repo._setState('testing');
   if (!stateSet) { return Promise.reject('busy'); }
-
   console.log('Running test for ' + this.repo.name);
+
+  var process = runner('npm', ['test'], this.repo.folder);
+
+  process.on('message', function (msg) {
+    console.log('Testing: ' + msg);
+  });
+
   var _this = this;
-
-  return new Promise(function (resolve) {
-    var process = runner('npm', ['test'], _this.repo.folder);
-
-    process.on('message', function (msg) {
-      console.log('Testing: ' + msg);
-    });
-
-    process.on('exit', function (output, exitStatus) {
-      var res = { output: output, exitStatus: exitStatus };
-      resolve(res);
-    });
-  })
-  .catch(function (err) {
-    console.error('Error running test in ' + _this.repo.name + ': ' + err);
-  })
-  .finally(function () { _this.repo._setState('free'); });
+  return process.promise
+    .catch(function (err) {
+      console.error('Error running test in ' + _this.repo.name + ': ' + err);
+    })
+    .finally(function () { _this.repo._setState('free'); });
 };
 
 /**
