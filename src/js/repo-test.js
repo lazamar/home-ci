@@ -68,7 +68,7 @@ RepoTests.prototype.getLogFromFile = function getLogFromFile(fileName) {
 /**
  * Gets last test's content.
  * @method lastLog
- * @return {Promise} Resoves to String if there is a test and to null otherwise.
+ * @return {Promise} Resoves an Object if there is a test and to null otherwise.
  */
 RepoTests.prototype.getLastLog = function getLastLog() {
   var testFileNames = this.getFileNames();
@@ -81,7 +81,7 @@ RepoTests.prototype.getLastLog = function getLastLog() {
  * Returns a Promise to be resolved into an Array of Strings containing
  * test logs chronologically ordered.
  * @method allLogs
- * @return {Promise} Which will be resolved in an Array[String].
+ * @return {Promise} Which will be resolved in an Array[Object].
  */
 RepoTests.prototype.getAllLogs = function getAllLogs() {
   var testFileNames = this.getFileNames();

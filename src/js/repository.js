@@ -78,11 +78,9 @@ function Repository(username, repoName, repositoriesPath) {
  */
 Repository.prototype.isPassingTests = function isPassingTests() {
   return this.tests.getLastLog()
-  .then(function (passing) {
-    if (passing) {
-      return true;
-    }
-    return false;
+  .then(function (log) {
+    if (!log) { return false; }
+    return log.success;
   });
 };
 
