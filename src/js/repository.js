@@ -151,12 +151,12 @@ Repository.prototype.install = function install() {
   console.log('installing \t' + repoName);
 
   var process = runner('npm', ['install'], repoFolder, maxTime);
+  var _this = this;
 
   process.on('message', function (msg) {
-    console.log('Installing: ' + msg);
+    _this.tests.liveLog._addLine(msg);
   });
 
-  var _this = this;
   return process.promise
     .catch(function (err) {
       var output = 'Error installing ' + _this.name + ': ' + err;
@@ -184,19 +184,20 @@ Repository.prototype.deleteFiles = function () {
 Repository.prototype.test = function test() {
   if (!this.isFree()) { return Promise.resolve('Busy'); }
 
-  var _this = this;
   var output = '';
   var exitStatus = 0;
 
   // Prepare liveLog for action
   this.tests.liveLog._clear();
 
+  var _this = this;
   return _this.clone()
     .then(function (res) {
       output += '\n' + res.output;
       exitStatus += res.exitStatus;
       if (exitStatus > 0) { return Promise.reject(res.output); }
 
+      _this.tests.liveLog._addLine(output);
       return _this.install();
     })
     .then(function (res) {

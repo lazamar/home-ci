@@ -1,5 +1,5 @@
 // This is under repo.tests.livelog
-function LiveLog() {
+module.exports = function LiveLog() {
   if (!(this instanceof LiveLog)) {
     return new LiveLog();
   }
@@ -21,9 +21,10 @@ function LiveLog() {
     logArray = [];
   };
 
-  this.addLine = function _addLine(txt) {
+  this._addLine = function _addLine(txt) {
+    console.log('line ' + logArray.length + ':' + txt);
     logArray.push(txt);
   };
 
   return this;
-}
+};

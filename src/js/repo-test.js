@@ -130,12 +130,12 @@ RepoTests.prototype.run = function run() {
   console.log('Running test for ' + this.repo.name);
 
   var process = runner('npm', ['test'], this.repo.folder);
+  var _this = this;
 
   process.on('message', function (msg) {
-    console.log('Testing: ' + msg);
+    _this.liveLog._addLine(msg);
   });
 
-  var _this = this;
   return process.promise
     .catch(function (err) {
       var output = 'Error running test in ' + _this.repo.name + ': ' + err;

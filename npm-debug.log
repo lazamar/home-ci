@@ -7,7 +7,7 @@
 6 silly lifecycle home-ci@1.0.0~prestart: no script for prestart, continuing
 7 info lifecycle home-ci@1.0.0~start: home-ci@1.0.0
 8 verbose lifecycle home-ci@1.0.0~start: unsafe-perm in lifecycle true
-9 verbose lifecycle home-ci@1.0.0~start: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/home/marcelo/Documents/Projects/home-ci/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$ANDROID_HOME/tools:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools
+9 verbose lifecycle home-ci@1.0.0~start: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/home/marcelo/Documents/Projects/home-ci/node_modules/.bin:/usr/local/lib/node_modules/npm/bin/node-gyp-bin:/home/marcelo/Documents/Projects/home-ci/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$ANDROID_HOME/tools:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools
 10 verbose lifecycle home-ci@1.0.0~start: CWD: /home/marcelo/Documents/Projects/home-ci
 11 silly lifecycle home-ci@1.0.0~start: Args: [ '-c', 'node src/js/router.js' ]
 12 silly lifecycle home-ci@1.0.0~start: Returned: code: 1  signal: null
